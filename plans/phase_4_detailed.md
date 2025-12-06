@@ -55,8 +55,10 @@ description: |
 
 inputs:
   - "Windows 10 ISO"
-  - "Tzar game installer"
+  - "Tzar game installer (files/tzared.windows.zip)"
   - "TzarBot.GameInterface binaries (from Phase 1)"
+
+detailed_guide: "plans/phase_4_template_setup.md"
 
 outputs:
   - "C:/VMs/TzarBot-Template.vhdx"

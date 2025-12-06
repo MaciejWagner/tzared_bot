@@ -140,3 +140,56 @@ Wykonano workflow implementacyjny. Utworzono kompletną strukturę plików:
 4. Kontynuuj do następnego taska
 
 **Łącznie:** 32 taski do wykonania w sekwencji z automatyczną walidacją.
+
+---
+
+### User [2025-12-07 12:30]:
+dodaj do logowania w chat history godzinę wykonania requestu
+
+### Assistant:
+Zaktualizowano `CLAUDE.md` - dodano format godziny do Chat History Protocol. Nowy format nagłówka: `### User [YYYY-MM-DD HH:MM]:` zamiast samego `### User:`.
+
+---
+
+### User [2025-12-07 12:32]:
+dodaj slash command prompt który mówi "stwórz prompt, który zrealizuje poniższy opis. Stworzony prompt zapisz w katalogu prompts z kolejnym numerem i nazwą"
+
+### Assistant:
+Utworzono slash command `.claude/commands/prompt.md`. Użycie: `/prompt [opis zadania]` - stworzy prompt realizujący opis i zapisze go w `prompts/` z kolejnym numerem.
+
+---
+
+### User [2025-12-07 12:35]:
+zaproponuj subagenta audytu tasków pod kątem możliwości uruchomienia projektu, z możliwością dodania dodatkowego zadania
+
+### Assistant:
+Utworzono slash command `.claude/commands/audit.md`. Użycie: `/audit [dodatkowe instrukcje]` - przeprowadza audyt tasków sprawdzając: środowisko testowe, kolejność tasków, luki w workflow, brakujące prerekvizity, krytyczne ścieżki. Generuje raport z oceną gotowości projektu.
+
+---
+
+### User [2025-12-07 16:40]:
+/audit zwróć szczególną uwagę na rzeczy dodatkowe, jak np brak gry tzared, chciałbym aby środowisko testowe było na osobnej maszynie na hyper V
+
+### Assistant:
+Przeprowadzono kompleksowy audyt workflow. **Ocena: WYMAGA POPRAWEK** - workflow nie może być uruchomiony.
+
+**Problemy krytyczne:**
+1. Brak instrukcji pozyskania gry Tzar
+2. Brak Development VM (środowisko testowe na Hyper-V)
+3. Niekompletne instrukcje Template VM (F4.T1)
+4. Brak skryptu `scripts/vm/New-TzarWorkerVM.ps1`
+
+---
+
+### User [2025-12-07 16:50]:
+najpierw uzupełnij plany. Instalator gry tzar został dodany do katalogu files.
+
+### Assistant:
+Uzupełniono plany zgodnie z audytem. Utworzone pliki:
+
+1. **`plans/phase_0_prerequisites.md`** - prerekvizity projektu (F0.T1-F0.T4)
+2. **`plans/phase_4_template_setup.md`** - szczegółowy przewodnik Template VM
+3. **`scripts/vm/*.ps1`** - 6 skryptów PowerShell do zarządzania VMs
+4. Zaktualizowano `phase_1_detailed.md`, `phase_4_detailed.md`, `2_implementation_workflow.md`
+
+**Instalator gry:** `files/tzared.windows.zip` (86.7 MB)

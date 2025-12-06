@@ -4,9 +4,21 @@
 
 The Game Interface is the foundation layer that enables communication between the Neural Network and the Tzar game. It consists of screen capture, input injection, and IPC modules.
 
+## Prerequisites
+
+**IMPORTANT**: Before starting Phase 1, ensure Phase 0 (Prerequisites) is complete:
+- Development VM running with Tzar game installed
+- All development tools configured (Host + VM)
+- Network connectivity verified
+
+See `plans/phase_0_prerequisites.md` for detailed setup instructions.
+
 ## Task Dependency Diagram
 
 ```
+[F0: Prerequisites] (Phase 0 - see phase_0_prerequisites.md)
+   │
+   ▼
 F1.T1 (Project Setup)
    │
    ├──────────┬──────────┬──────────┐

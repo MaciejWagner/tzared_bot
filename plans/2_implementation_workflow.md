@@ -80,7 +80,8 @@ Example: F1.T1 = Phase 1, Task 1
 
 | Phase | Name | Tasks | Complexity | Dependencies |
 |-------|------|-------|------------|--------------|
-| 1 | Game Interface | 6 | M | None |
+| **0** | **Prerequisites** | **4** | **S** | **None** |
+| 1 | Game Interface | 6 | M | F0 |
 | 2 | Neural Network | 5 | L | F1 |
 | 3 | Genetic Algorithm | 5 | M | F2 |
 | 4 | Hyper-V Infrastructure | 6 | XL | F1 |
@@ -88,6 +89,14 @@ Example: F1.T1 = Phase 1, Task 1
 | 6 | Training Pipeline | 6 | L | F3, F4, F5 |
 
 ## Master Checklist
+
+### Phase 0: Prerequisites (MUST COMPLETE FIRST)
+- [ ] F0.T1: Host Machine Setup (Hyper-V, .NET 8 SDK, directories)
+- [ ] F0.T2: Development VM Setup (create VM, install Windows, configure network)
+- [ ] F0.T3: Tzar Game Installation (install from files/tzared.windows.zip)
+- [ ] F0.T4: Environment Verification (test connectivity, document configuration)
+
+See `plans/phase_0_prerequisites.md` for detailed instructions.
 
 ### Phase 1: Game Interface
 - [ ] F1.T1: Project Setup

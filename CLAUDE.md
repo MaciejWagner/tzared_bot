@@ -13,7 +13,7 @@ Tzar Bot - AI bot for the strategy game Tzar (https://tza.red/) using genetic al
 ```markdown
 ---
 
-### User:
+### User [YYYY-MM-DD HH:MM]:
 [Paste the user's message/request]
 
 ### Assistant:
