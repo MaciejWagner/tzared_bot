@@ -1,0 +1,73 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Checkpoints and training data
+checkpoints/
+*.checkpoint
+*.bin
+
+# Test results
+TestResults/
+coverage/
+
+# ONNX models
+*.onnx
+
+# OCR data (download separately)
+tessdata/
+
+# Game files (download separately)
+files/tzared.windows.zip
+
+# Virtual Machines
+*.vhdx
+*.vhd
+*.vmcx
+*.vmrs
+
+# Assets that may contain game-specific content
+assets/templates/*.png
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Environment and secrets
+.env
+.env.local
+appsettings.json
+appsettings.*.json
+!config/appsettings.template.json
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Compiled Python (if any)
+__pycache__/
+*.py[cod]
+nul
