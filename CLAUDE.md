@@ -82,8 +82,16 @@ This ensures workflow can be safely interrupted and resumed at any point.
 
 ## Build & Development Commands
 
-<!-- Add commands as they are established -->
-<!-- Example: npm install, npm run build, npm test, etc. -->
+```bash
+# Build solution
+dotnet build src/TzarBot.sln
+
+# Run tests
+dotnet test src/TzarBot.sln
+
+# Run specific project
+dotnet run --project src/TzarBot.GameInterface/TzarBot.GameInterface.csproj
+```
 
 ## Architecture
 
@@ -106,6 +114,12 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 
 ## Available Agents (Slash Commands)
 
+### Konwencja nazewnictwa
+
+**WAŻNE:** Wszystkie agenty MUSZĄ mieć prefix `agent-` w nazwie pliku i w polu `name:`. Dzięki temu można je łatwo znaleźć za pomocą `/agent-*` lub wyszukując "agent-".
+
+Przykład: `agent-project-manager.md` z `name: agent-project-manager`
+
 ### Agenci Projektowi (TzarBot)
 
 | Komenda | Opis | Skills |
@@ -121,6 +135,7 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 |---------|------|--------|
 | `/agent-audit` | Audyt workflow i tasków | `/agent-audit [dodatkowe instrukcje]` |
 | `/agent-optimizer` | Optymalizacja zasobów AI | `/agent-optimizer [zakres analizy]` |
+| `/agent-project-manager` | Zarządzanie projektem (backlog, Gantt, metryki, demo) | `/agent-project-manager [zakres]` |
 
 ### Przykłady użycia:
 ```bash
@@ -148,13 +163,45 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 
 ```
 tzar_bot/
-├── CLAUDE.md           # This file - project guidance
-├── chat_history.md     # Conversation log
-├── plans/              # Project plans and documentation
+├── CLAUDE.md                 # This file - project guidance
+├── chat_history.md           # Conversation log
+├── workflow_progress.md      # Current workflow status
+├── plans/                    # Project plans and documentation
 │   └── 1general_plan.md
-├── prompts/            # Reusable prompts for Claude
+├── prompts/                  # Reusable prompts for Claude
 │   └── 1_planning_prompt.md
+├── project_management/       # Project tracking artifacts
+│   ├── project_overview.md   # High-level project summary
+│   ├── progress_dashboard.md # Current status dashboard
+│   ├── gantt.md              # Mermaid Gantt chart
+│   ├── timetracking.md       # Time metrics and velocity
+│   ├── backlog/              # Phase backlogs
+│   │   ├── phase_0_backlog.md  # Prerequisites
+│   │   ├── phase_1_backlog.md  # Game Interface ✅ COMPLETED
+│   │   ├── phase_2_backlog.md  # Neural Network
+│   │   ├── phase_3_backlog.md  # Genetic Algorithm
+│   │   ├── phase_4_backlog.md  # Hyper-V Infrastructure
+│   │   ├── phase_5_backlog.md  # Game State Detection
+│   │   └── phase_6_backlog.md  # Training Pipeline
+│   └── demo/                 # Demo documentation per phase
+│       └── phase_1_demo.md   # Phase 1 demo instructions
+├── src/                      # Source code
+│   ├── TzarBot.sln           # Main solution
+│   ├── TzarBot.GameInterface/      # Screen capture & input
+│   ├── TzarBot.GameInterface.Tests/  # Unit tests
+│   └── ...
 └── .claude/
-    ├── commands/       # Slash commands (/agent-*, /prompt, /audit)
-    └── agents/         # Agent definitions
+    ├── commands/             # Slash commands (/agent-*, /prompt, /audit)
+    └── agents/               # Agent definitions
 ```
+
+## Project Status
+
+| Metric | Value |
+|--------|-------|
+| Overall Progress | 17% (6/36 tasks) |
+| Current Phase | Phase 1 COMPLETED |
+| Next Phase | Phase 0 (Prerequisites) or Phase 2 (Neural Network) |
+| Unit Tests | 46 PASS |
+
+See `project_management/progress_dashboard.md` for detailed status.
