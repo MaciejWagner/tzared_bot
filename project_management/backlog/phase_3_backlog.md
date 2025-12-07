@@ -161,3 +161,18 @@ Faza 3 obejmuje implementacje algorytmu genetycznego ewoluujacego populacje siec
 - [ ] Populacja 100 sieci ewoluuje bez memory leaks
 - [ ] Sredni fitness rosnie przez co najmniej 50 generacji
 - [ ] Checkpoint populacji dziala (save/restore)
+
+---
+
+## Demo Requirements
+
+Dokumentacja demo fazy MUSI zawierac:
+
+| Wymaganie | Opis |
+|-----------|------|
+| Scenariusze testowe | Kroki do wykonania demo |
+| **Raport z VM** | Uruchomienie demo na VM DEV z dowodami |
+| Screenshoty | Min. 3-5 zrzutow ekranu z VM |
+| Logi | Pelny output z konsoli (.log files) |
+
+> **UWAGA:** Demo NIE jest kompletne bez raportu z uruchomienia na maszynie wirtualnej!

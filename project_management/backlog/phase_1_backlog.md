@@ -253,9 +253,25 @@ Faza 1 obejmuje implementacje interfejsu gry - warstwy posredniej miedzy sieciam
 
 ---
 
+## Demo Requirements
+
+Dokumentacja demo fazy MUSI zawierac:
+
+| Wymaganie | Status | Opis |
+|-----------|--------|------|
+| Scenariusze testowe | READY | Kroki do wykonania w phase_1_demo.md |
+| **Raport z VM** | **PENDING** | Uruchomienie demo na VM DEV z dowodami |
+| Screenshoty | PENDING | Min. 5 zrzutow ekranu z VM |
+| Logi | PENDING | build.log, tests.log, demo_run.log |
+
+> **UWAGA:** Demo NIE jest kompletne bez raportu z uruchomienia na maszynie wirtualnej DEV!
+
+---
+
 ## Powiazane dokumenty
 
 - Plan szczegolowy: `plans/phase_1_detailed.md`
 - Raport ukonczenia: `reports/2_phase1_completion_report.md`
 - Dokumentacja demo: `project_management/demo/phase_1_demo.md`
+- Dowody demo: `project_management/demo/phase_1_evidence/`
 - Workflow progress: `workflow_progress.md`

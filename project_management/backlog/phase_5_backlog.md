@@ -140,6 +140,21 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 
 ---
 
+## Demo Requirements
+
+Dokumentacja demo fazy MUSI zawierac:
+
+| Wymaganie | Opis |
+|-----------|------|
+| Scenariusze testowe | Kroki do wykonania demo |
+| **Raport z VM** | Uruchomienie demo na VM DEV z dowodami |
+| Screenshoty | Min. 3-5 zrzutow ekranu z VM |
+| Logi | Pelny output z konsoli (.log files) |
+
+> **UWAGA:** Demo NIE jest kompletne bez raportu z uruchomienia na maszynie wirtualnej!
+
+---
+
 ## Notatki
 
 - Wymagane reczne przechwycenie templateow z gry

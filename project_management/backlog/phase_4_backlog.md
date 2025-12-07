@@ -238,3 +238,18 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 - [ ] Stabilnosc: VM dzialaja 24h bez interwencji
 - [ ] Czas setupu nowej generacji < 5 minut
 - [ ] Weryfikacja: suma RAM wszystkich VM <= 10GB
+
+---
+
+## Demo Requirements
+
+Dokumentacja demo fazy MUSI zawierac:
+
+| Wymaganie | Opis |
+|-----------|------|
+| Scenariusze testowe | Kroki do wykonania demo |
+| **Raport z VM** | Uruchomienie demo na VM DEV + Workers z dowodami |
+| Screenshoty | Min. 5 zrzutow (VM template, cloning, workers running, RAM usage) |
+| Logi | Pelny output z konsoli (.log files) |
+
+> **UWAGA:** Demo NIE jest kompletne bez raportu z uruchomienia na maszynie wirtualnej!
