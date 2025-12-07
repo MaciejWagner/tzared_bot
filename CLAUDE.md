@@ -104,6 +104,37 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 - **Virtualization:** Hyper-V + PowerShell
 - **Dashboard:** Blazor Server
 
+## Available Agents (Slash Commands)
+
+Dostępni agenci do szybkiego wywołania:
+
+| Komenda | Opis | Użycie |
+|---------|------|--------|
+| `/agent-audit` | Audyt workflow i tasków | `/agent-audit [dodatkowe instrukcje]` |
+| `/agent-optimizer` | Optymalizacja zasobów AI | `/agent-optimizer [zakres analizy]` |
+
+### Przykłady użycia:
+```bash
+# Audyt całego workflow
+/agent-audit
+
+# Audyt ze szczególnym naciskiem na Phase 1
+/agent-audit Skup się na Phase 1 i zależnościach między taskami
+
+# Optymalizacja wykorzystania AI
+/agent-optimizer
+
+# Analiza kosztów modeli
+/agent-optimizer Sprawdź czy używamy odpowiednich modeli do prostych zadań
+```
+
+## Other Slash Commands
+
+| Komenda | Opis |
+|---------|------|
+| `/prompt [opis]` | Generuje nowy prompt i zapisuje w katalogu prompts |
+| `/audit [instrukcje]` | Szybki audyt (bez agenta) |
+
 ## Project Structure
 
 ```
@@ -112,6 +143,9 @@ tzar_bot/
 ├── chat_history.md     # Conversation log
 ├── plans/              # Project plans and documentation
 │   └── 1general_plan.md
-└── prompts/            # Reusable prompts for Claude
-    └── 1_planning_prompt.md
+├── prompts/            # Reusable prompts for Claude
+│   └── 1_planning_prompt.md
+└── .claude/
+    ├── commands/       # Slash commands (/agent-*, /prompt, /audit)
+    └── agents/         # Agent definitions
 ```
