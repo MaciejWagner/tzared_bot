@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TzarBot.Common/TzarBot.Common.csproj" />
+    <Project Path="src/TzarBot.GameInterface.Demo/TzarBot.GameInterface.Demo.csproj" />
+    <Project Path="src/TzarBot.GameInterface/TzarBot.GameInterface.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TzarBot.Tests/TzarBot.Tests.csproj" />
+  </Folder>
+</Solution>

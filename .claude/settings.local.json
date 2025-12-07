@@ -11,7 +11,14 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:nuget.org)",
       "WebFetch(domain:opencv.org)",
-      "Bash(if not exist \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\" mkdir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\")"
+      "Bash(if not exist \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\" mkdir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\")",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet --version:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dir:*)",
+      "Bash(dotnet test:*)"
     ],
     "deny": [],
     "ask": []
