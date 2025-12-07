@@ -392,3 +392,41 @@ Zapisano:
 - `project_management/demo/phase_1_demo.md` - zaktualizowana z wynikami z VM
 
 ---
+
+### User [2025-12-07 15:15]:
+Ponowne uruchomienie demo Phase 0 i Phase 1 z pelnym zbieraniem dowodow.
+Audyt delivery wykazal braki w dokumentacji demo: brak screenshotow, wyniki testow wymagaja weryfikacji na VM.
+
+### Assistant:
+Wykonano ponowne uruchomienie demo na VM DEV:
+
+**Utworzone skrypty:**
+- `scripts/demo/Run-VMDemoWithScreenshots.ps1` - glowny skrypt uruchamiajacy demo
+- `scripts/demo/Capture-VMScreenshots.ps1` - skrypt do zbierania screenshotow przez Enhanced Session
+- `scripts/demo/Configure-VMAutoDemo.ps1` - konfiguracja AutoLogon dla automatycznego demo
+
+**Wyniki demo 2025-12-07 15:22:**
+- Phase 0: 7/7 testow PASS (100%)
+  - System Info, Network IP, Gateway, Internet, .NET SDK, Tzar Game, Disk Space
+- Phase 1: 35/46 testow PASS (76.1%)
+  - Build: 0 errors, 0 warnings
+  - 11 failures srodowiskowych (9x ScreenCapture, 2x WindowDetection)
+  - IPC: wszystkie testy przeszly (poprawa z poprzedniego uruchomienia)
+
+**Logi zebrane:**
+- `project_management/demo/phase_0_evidence/phase0_demo_2025-12-07_15-22-36.log`
+- `project_management/demo/phase_0_evidence/phase0_report_2025-12-07_15-22-36.md`
+- `project_management/demo/phase_1_evidence/build_2025-12-07_15-22-48.log`
+- `project_management/demo/phase_1_evidence/tests_2025-12-07_15-22-48.log`
+- `project_management/demo/phase_1_evidence/phase1_demo_2025-12-07_15-22-48.log`
+- `project_management/demo/phase_1_evidence/phase1_report_2025-12-07_15-22-48.md`
+
+**Dokumentacja zaktualizowana:**
+- `project_management/demo/phase_0_demo.md` (v1.1)
+- `project_management/demo/phase_1_demo.md` (v1.4)
+
+**Uwaga dot. screenshotow:**
+Screenshoty nie zostaly zebrane - PowerShell Direct nie ma dostepu do sesji graficznej.
+Dla screenshotow wymagane jest uruchomienie przez RDP/Enhanced Session z uzytkownikiem zalogowanym interaktywnie.
+
+---

@@ -28,7 +28,8 @@
       "Bash(dotnet --list-sdks:*)",
       "Bash(dotnet --list-runtimes:*)",
       "Bash(copy \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\demo_results\\Phase0\\phase0_demo_2025-12-07_11-03-57.log\" \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\project_management\\demo\\phase_0_evidence\\demo_run.log\")",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(Select-Object -First 20)"
     ],
     "deny": [],
     "ask": []
