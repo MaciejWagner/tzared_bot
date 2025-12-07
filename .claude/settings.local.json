@@ -5,6 +5,12 @@
       "Bash(mkdir:*)",
       "WebFetch(domain:docs.claude.com)",
       "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:learn.microsoft.com)",
+      "WebFetch(domain:docs.microsoft.com)",
+      "WebFetch(domain:onnxruntime.ai)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:nuget.org)",
+      "WebFetch(domain:opencv.org)",
       "Bash(if not exist \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\" mkdir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\")"
     ],
     "deny": [],

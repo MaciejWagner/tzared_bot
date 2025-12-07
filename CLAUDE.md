@@ -106,7 +106,16 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 
 ## Available Agents (Slash Commands)
 
-Dostępni agenci do szybkiego wywołania:
+### Agenci Projektowi (TzarBot)
+
+| Komenda | Opis | Skills |
+|---------|------|--------|
+| `tzarbot-agent-dotnet-senior` | Senior .NET/C# Developer | csharp, dotnet, windows-api |
+| `tzarbot-agent-ai-senior` | Senior AI/ML Engineer | machine-learning, neural-networks, genetic-algorithms, onnx |
+| `tzarbot-agent-fullstack-blazor` | Fullstack Blazor Developer | blazor, signalr, chartjs, css |
+| `tzarbot-agent-hyperv-admin` | Hyper-V Infrastructure Admin | powershell, hyper-v, windows-server, networking |
+
+### Agenci Systemowi
 
 | Komenda | Opis | Użycie |
 |---------|------|--------|
