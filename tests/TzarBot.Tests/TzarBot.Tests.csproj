@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\TzarBot.GameInterface\TzarBot.GameInterface.csproj" />
     <ProjectReference Include="..\..\src\TzarBot.Common\TzarBot.Common.csproj" />
+    <ProjectReference Include="..\..\src\TzarBot.NeuralNetwork\TzarBot.NeuralNetwork.csproj" />
   </ItemGroup>
 
 </Project>
