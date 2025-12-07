@@ -75,3 +75,4 @@ files/Windows.iso
 scripts.zip
 src.zip
 tests.zip
+*.zip
