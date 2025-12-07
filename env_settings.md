@@ -50,7 +50,7 @@
 
 | VM | Username | Password | Notes |
 |----|----------|----------|-------|
-| DEV | test | (brak) | Auto-login enabled |
+| DEV | test | password123 | PowerShell Direct enabled |
 
 ### VM Template
 

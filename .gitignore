@@ -72,3 +72,6 @@ __pycache__/
 *.py[cod]
 nul
 files/Windows.iso
+scripts.zip
+src.zip
+tests.zip

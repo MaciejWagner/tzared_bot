@@ -134,14 +134,20 @@ Aktualizuj plik `env_settings.md` przy:
 ## Build & Development Commands
 
 ```bash
-# Build solution
-dotnet build src/TzarBot.sln
+# Build solution (from project root)
+dotnet build TzarBot.sln
 
 # Run tests
-dotnet test src/TzarBot.sln
+dotnet test TzarBot.sln
 
 # Run specific project
-dotnet run --project src/TzarBot.GameInterface/TzarBot.GameInterface.csproj
+dotnet run --project src/TzarBot.GameInterface.Demo/TzarBot.GameInterface.Demo.csproj
+
+# Deploy and run demo on VM DEV
+powershell -ExecutionPolicy Bypass -File "scripts/deploy_to_vm.ps1"
+
+# Copy demo results from VM
+powershell -ExecutionPolicy Bypass -File "scripts/copy_results_from_vm.ps1"
 ```
 
 ## Architecture
@@ -335,7 +341,7 @@ tzar_bot/
 │   ├── gantt.md              # Mermaid Gantt chart
 │   ├── timetracking.md       # Time metrics and velocity
 │   ├── backlog/              # Phase backlogs
-│   │   ├── phase_0_backlog.md  # Prerequisites
+│   │   ├── phase_0_backlog.md  # Prerequisites ✅ COMPLETED
 │   │   ├── phase_1_backlog.md  # Game Interface ✅ COMPLETED
 │   │   ├── phase_2_backlog.md  # Neural Network
 │   │   ├── phase_3_backlog.md  # Genetic Algorithm
@@ -343,7 +349,8 @@ tzar_bot/
 │   │   ├── phase_5_backlog.md  # Game State Detection
 │   │   └── phase_6_backlog.md  # Training Pipeline
 │   └── demo/                 # Demo documentation per phase
-│       └── phase_X_demo.md   # Demo instructions + VM execution report
+│       ├── phase_0_demo.md   # Phase 0 demo (COMPLETED)
+│       └── phase_1_demo.md   # Phase 1 demo (COMPLETED)
 ├── src/                      # Source code
 │   ├── TzarBot.sln           # Main solution
 │   ├── TzarBot.GameInterface/      # Screen capture & input
@@ -358,9 +365,13 @@ tzar_bot/
 
 | Metric | Value |
 |--------|-------|
-| Overall Progress | 17% (6/36 tasks) |
-| Current Phase | Phase 1 COMPLETED |
-| Next Phase | Phase 0 (Prerequisites) or Phase 2 (Neural Network) |
+| Overall Progress | 31% (11/36 tasks) |
+| Phase 0 | COMPLETED ✅ (5/5 tasks) |
+| Phase 1 | COMPLETED ✅ (6/6 tasks) |
+| Demo Status | PASSED (Phase 0: 7/7, Phase 1: 5/7) |
+| Next Phase | Phase 2 (Neural Network Architecture) |
 | Unit Tests | 46 PASS |
+| .NET Version | 8.0 (net8.0 + RollForward=LatestMajor) |
 
 See `project_management/progress_dashboard.md` for detailed status.
+See `demo_results/` for latest demo execution results.

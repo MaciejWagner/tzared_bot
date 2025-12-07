@@ -18,7 +18,15 @@
       "Bash(dotnet add:*)",
       "Bash(dotnet build:*)",
       "Bash(dir:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\scripts\\run_on_vm.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"$password = ConvertTo-SecureString ''password123'' -AsPlainText -Force; $cred = New-Object System.Management.Automation.PSCredential(''test'', $password); Invoke-Command -VMName ''DEV'' -Credential $cred -ScriptBlock { Get-Content ''C:\\TzarBot-Demo\\Phase1\\build_2025-12-07_11-03-57.log'' }\")",
+      "Bash(powershell:*)",
+      "Bash(dotnet nuget search:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet --list-sdks:*)",
+      "Bash(dotnet --list-runtimes:*)"
     ],
     "deny": [],
     "ask": []
