@@ -1,9 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir /s /b C:Usersmaciekai_experimentstzar_botprompts)",
       "Bash(findstr:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:code.claude.com)",
+      "Bash(if not exist \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\" mkdir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\reports\")"
     ],
     "deny": [],
     "ask": []
