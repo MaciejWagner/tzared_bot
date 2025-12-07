@@ -76,6 +76,50 @@ Example: F1.T1 = Phase 1, Task 1
 2. Update `reports/progress.json`
 3. Commit changes with tag `FX.TY-complete`
 
+## Agent Definitions
+
+The following specialized agents are defined for task execution:
+
+### DOTNET_SENIOR - Senior .NET Backend Developer
+**Minimum Requirements:**
+- 5+ years experience in C#/.NET
+- Proficiency in async/await, LINQ, DI
+- Experience with unit testing (xUnit)
+- Knowledge of MessagePack/serialization
+- Basic Win32 API knowledge
+
+### AI_SENIOR - Senior AI/ML Developer
+**Minimum Requirements:**
+- 3+ years experience in ML/AI
+- Knowledge of ONNX Runtime
+- Experience with neural networks (CNN, Dense)
+- Familiarity with genetic algorithms
+- C#/Python for ML
+
+### DEVOPS_SENIOR - DevOps/Infrastructure Engineer
+**Minimum Requirements:**
+- 3+ years experience with Hyper-V
+- Advanced PowerShell
+- Knowledge of Windows Server
+- Experience with VM automation
+- Networking (NAT, virtual switches)
+
+### FULLSTACK_BLAZOR - Full-Stack Developer (Blazor)
+**Minimum Requirements:**
+- 2+ years experience in Blazor Server
+- SignalR
+- Chart.js / visualization
+- HTML/CSS/JavaScript
+- REST API
+
+### QA_INTEGRATION - QA/Integration Specialist
+**Minimum Requirements:**
+- 3+ years testing experience
+- Integration testing
+- Performance testing
+- Knowledge of xUnit, FluentAssertions
+- Complex systems debugging
+
 ## Phase Summary
 
 | Phase | Name | Tasks | Complexity | Dependencies |
@@ -91,56 +135,70 @@ Example: F1.T1 = Phase 1, Task 1
 ## Master Checklist
 
 ### Phase 0: Prerequisites (MUST COMPLETE FIRST)
-- [ ] F0.T1: Host Machine Setup (Hyper-V, .NET 8 SDK, directories)
-- [ ] F0.T2: Development VM Setup (create VM, install Windows, configure network)
-- [ ] F0.T3: Tzar Game Installation (install from files/tzared.windows.zip)
-- [ ] F0.T4: Environment Verification (test connectivity, document configuration)
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F0.T1 | Host Machine Setup | DEVOPS_SENIOR | [ ] |
+| F0.T2 | Development VM Setup | DEVOPS_SENIOR | [ ] |
+| F0.T3 | Tzar Game Installation | DEVOPS_SENIOR | [ ] |
+| F0.T4 | Environment Verification | DEVOPS_SENIOR | [ ] |
 
 See `plans/phase_0_prerequisites.md` for detailed instructions.
 
 ### Phase 1: Game Interface
-- [ ] F1.T1: Project Setup
-- [ ] F1.T2: Screen Capture Implementation
-- [ ] F1.T3: Input Injection Implementation
-- [ ] F1.T4: IPC Named Pipes
-- [ ] F1.T5: Window Detection
-- [ ] F1.T6: Integration & Smoke Tests
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F1.T1 | Project Setup | DOTNET_SENIOR | [ ] |
+| F1.T2 | Screen Capture Implementation | DOTNET_SENIOR | [ ] |
+| F1.T3 | Input Injection Implementation | DOTNET_SENIOR | [ ] |
+| F1.T4 | IPC Named Pipes | DOTNET_SENIOR | [ ] |
+| F1.T5 | Window Detection | DOTNET_SENIOR | [ ] |
+| F1.T6 | Integration & Smoke Tests | QA_INTEGRATION | [ ] |
 
 ### Phase 2: Neural Network
-- [ ] F2.T1: NetworkGenome & Serialization
-- [ ] F2.T2: Image Preprocessor
-- [ ] F2.T3: ONNX Network Builder
-- [ ] F2.T4: Inference Engine
-- [ ] F2.T5: Integration Tests
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F2.T1 | NetworkGenome & Serialization | AI_SENIOR | [ ] |
+| F2.T2 | Image Preprocessor | DOTNET_SENIOR | [ ] |
+| F2.T3 | ONNX Network Builder | AI_SENIOR | [ ] |
+| F2.T4 | Inference Engine | AI_SENIOR | [ ] |
+| F2.T5 | Integration Tests | QA_INTEGRATION | [ ] |
 
 ### Phase 3: Genetic Algorithm
-- [ ] F3.T1: GA Engine Core
-- [ ] F3.T2: Mutation Operators
-- [ ] F3.T3: Crossover Operators
-- [ ] F3.T4: Selection & Elitism
-- [ ] F3.T5: Fitness Calculator & Persistence
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F3.T1 | GA Engine Core | DOTNET_SENIOR | [ ] |
+| F3.T2 | Mutation Operators | DOTNET_SENIOR | [ ] |
+| F3.T3 | Crossover Operators | DOTNET_SENIOR | [ ] |
+| F3.T4 | Selection & Elitism | DOTNET_SENIOR | [ ] |
+| F3.T5 | Fitness Calculator & Persistence | AI_SENIOR | [ ] |
 
 ### Phase 4: Hyper-V Infrastructure
-- [ ] F4.T1: Template VM Preparation (Manual)
-- [ ] F4.T2: VM Cloning Scripts
-- [ ] F4.T3: VM Manager Implementation
-- [ ] F4.T4: Orchestrator Service
-- [ ] F4.T5: Communication Protocol
-- [ ] F4.T6: Multi-VM Integration Test
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F4.T1 | Template VM Preparation | DEVOPS_SENIOR | [ ] MANUAL |
+| F4.T2 | VM Cloning Scripts | DEVOPS_SENIOR | [ ] |
+| F4.T3 | VM Manager Implementation | DOTNET_SENIOR | [ ] |
+| F4.T4 | Orchestrator Service | DEVOPS_SENIOR | [ ] |
+| F4.T5 | Communication Protocol | DOTNET_SENIOR | [ ] |
+| F4.T6 | Multi-VM Integration Test | QA_INTEGRATION | [ ] |
 
 ### Phase 5: Game State Detection
-- [ ] F5.T1: Template Capture Tool
-- [ ] F5.T2: GameStateDetector
-- [ ] F5.T3: GameMonitor
-- [ ] F5.T4: Stats Extraction (OCR)
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F5.T1 | Template Capture Tool | QA_INTEGRATION | [ ] |
+| F5.T2 | GameStateDetector | AI_SENIOR | [ ] |
+| F5.T3 | GameMonitor | QA_INTEGRATION | [ ] |
+| F5.T4 | Stats Extraction (OCR) | AI_SENIOR | [ ] |
 
 ### Phase 6: Training Pipeline
-- [ ] F6.T1: Training Loop Core
-- [ ] F6.T2: Curriculum Manager
-- [ ] F6.T3: Checkpoint Manager
-- [ ] F6.T4: Tournament System
-- [ ] F6.T5: Blazor Dashboard
-- [ ] F6.T6: Full Integration Test
+| Task | Name | Agent | Status |
+|------|------|-------|--------|
+| F6.T1 | Training Loop Core | AI_SENIOR | [ ] |
+| F6.T2 | Curriculum Manager | AI_SENIOR | [ ] |
+| F6.T3 | Checkpoint Manager | QA_INTEGRATION | [ ] |
+| F6.T4 | Tournament System | AI_SENIOR | [ ] |
+| F6.T5 | Blazor Dashboard | FULLSTACK_BLAZOR | [ ] |
+| F6.T6 | Full Integration Test | QA_INTEGRATION | [ ] |
 
 ## Progress Tracking
 
