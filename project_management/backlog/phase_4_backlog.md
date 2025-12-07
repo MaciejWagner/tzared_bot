@@ -12,6 +12,27 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 
 ---
 
+## Infrastructure Constraints
+
+| Constraint | Value | Notes |
+|------------|-------|-------|
+| **Max RAM (total)** | 10 GB | Suma RAM wszystkich VM (DEV + Workers) nie moze przekroczyc 10GB |
+| **DEV VM RAM** | 4 GB | Maszyna deweloperska |
+| **Worker VM RAM** | 1-2 GB | Na workera; dostosuj liczbe workerow do limitu |
+| **Max Workers** | ~3-6 | Przy DEV=4GB i Worker=1-2GB, zostaje 6GB na workery |
+
+### Przykladowe konfiguracje RAM:
+
+| Konfiguracja | DEV | Workers | Total |
+|--------------|-----|---------|-------|
+| Min workers | 4 GB | 3 x 2 GB = 6 GB | 10 GB |
+| Max workers | 4 GB | 6 x 1 GB = 6 GB | 10 GB |
+| Balanced | 4 GB | 4 x 1.5 GB = 6 GB | 10 GB |
+
+**WAZNE:** Przy planowaniu liczby workerow ZAWSZE uwzglednij limit 10GB RAM!
+
+---
+
 ## Taski
 
 ### F4.T1: Template VM Preparation (MANUAL)
@@ -34,10 +55,12 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 - [ ] Auto-login do konta lokalnego
 - [ ] Startup script uruchamiajacy gre
 - [ ] VHDX zapisany jako template
+- [ ] **env_settings.md zaktualizowany** (template path, VM specs, service config)
 
 **Powiazane pliki:**
 - `plans/phase_4_template_setup.md`
 - `plans/phase_4_detailed.md`
+- `env_settings.md`
 
 ---
 
@@ -59,10 +82,12 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 - [ ] Konfiguracja sieci (Internal Switch)
 - [ ] Auto-start VM
 - [ ] Cleanup script do usuwania workerow
+- [ ] **env_settings.md zaktualizowany** (worker IP range, naming convention)
 
 **Powiazane pliki:**
 - `scripts/vm/New-TzarWorkerVM.ps1`
 - `scripts/vm/Remove-TzarWorkerVM.ps1`
+- `env_settings.md`
 
 ---
 
@@ -134,9 +159,11 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 - [ ] Receive game result from VM
 - [ ] Heartbeat/health check
 - [ ] Timeout i retry logic
+- [ ] **env_settings.md zaktualizowany** (communication ports, protocols, timeouts)
 
 **Powiazane pliki:**
 - `plans/phase_4_detailed.md`
+- `env_settings.md`
 
 ---
 
@@ -179,12 +206,21 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 
 ## Wymagania sprzetowe
 
-| Zasob | Minimum | Zalecane |
-|-------|---------|----------|
-| RAM Host | 32GB | 64GB |
-| CPU Cores | 8 | 16 |
-| Storage | 200GB SSD | 500GB NVMe |
-| VM count | 4 | 8-16 |
+| Zasob | Minimum | Zalecane | Notes |
+|-------|---------|----------|-------|
+| **RAM dla VM (LIMIT)** | - | **10 GB** | **HARD LIMIT - nie przekraczac!** |
+| RAM Host | 16GB | 32GB | Wiecej RAM hosta nie zmienia limitu VM |
+| CPU Cores | 4 | 8 | |
+| Storage | 200GB SSD | 500GB NVMe | |
+| VM count | 3-4 | 4-6 | Dostosuj do limitu RAM |
+
+### Alokacja RAM w ramach limitu 10GB:
+
+| VM | RAM | Typ |
+|----|-----|-----|
+| DEV | 4 GB | Development |
+| Workers | 6 GB | Pool (np. 3x2GB lub 6x1GB) |
+| **TOTAL** | **10 GB** | **LIMIT** |
 
 ---
 
@@ -198,6 +234,7 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 
 ## Metryki sukcesu
 
-- [ ] Automatyczne tworzenie 8+ VM z template
+- [ ] Automatyczne tworzenie 3-6 VM z template (w ramach limitu 10GB RAM)
 - [ ] Stabilnosc: VM dzialaja 24h bez interwencji
 - [ ] Czas setupu nowej generacji < 5 minut
+- [ ] Weryfikacja: suma RAM wszystkich VM <= 10GB

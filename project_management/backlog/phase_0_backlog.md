@@ -12,6 +12,15 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 
 ---
 
+## Infrastructure Constraints
+
+| Constraint | Value | Notes |
+|------------|-------|-------|
+| **Max RAM dla VM** | 10 GB | Suma RAM wszystkich VM (DEV + Workers) nie moze przekroczyc 10GB |
+| **VM Development** | DEV | Glowna maszyna deweloperska |
+
+---
+
 ## Taski
 
 ### F0.T1: Host Machine Setup
@@ -31,10 +40,12 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 - [ ] Utworzony Internal Virtual Switch "TzarBotSwitch"
 - [ ] NAT skonfigurowany dla dostepu do internetu z VM
 - [ ] PowerShell Hyper-V module dostepny
+- [ ] **env_settings.md zaktualizowany** (switch name, NAT subnet, gateway IP)
 
 **Powiazane pliki:**
 - `plans/phase_0_prerequisites.md`
 - `scripts/vm/New-TzarBotSwitch.ps1`
+- `env_settings.md`
 
 ---
 
@@ -42,8 +53,8 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 | Pole | Wartosc |
 |------|---------|
 | **ID** | F0.T2 |
-| **Tytul** | Konfiguracja maszyny wirtualnej deweloperskiej |
-| **Opis** | Utworzenie VM z Windows do rozwoju i testowania bota |
+| **Tytul** | Konfiguracja maszyny wirtualnej deweloperskiej "DEV" |
+| **Opis** | Utworzenie VM o nazwie "DEV" z Windows do rozwoju i testowania bota |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
 | **Status** | PENDING |
@@ -51,17 +62,19 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 | **Zaleznosci** | F0.T1 |
 
 **Kryteria akceptacji:**
-- [ ] VM utworzona z Windows 10/11
-- [ ] 4+ GB RAM przydzielone
+- [ ] VM o nazwie "DEV" utworzona z Windows 10/11
+- [ ] 4 GB RAM przydzielone (UWAGA: max 10GB dla calej infrastruktury)
 - [ ] 2+ CPU cores
 - [ ] 60+ GB dysk
 - [ ] Enhanced Session Mode wlaczony
 - [ ] .NET 10 SDK zainstalowany
 - [ ] Visual Studio Code / VS zainstalowane
+- [ ] **env_settings.md zaktualizowany** (VM name: DEV, IP, specs, credentials)
 
 **Powiazane pliki:**
 - `plans/phase_0_prerequisites.md`
 - `scripts/vm/New-DevelopmentVM.ps1`
+- `env_settings.md`
 
 ---
 
@@ -83,10 +96,12 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 - [ ] Rozdzielczosc ustawiona na 1920x1080 (lub inna docelowa)
 - [ ] Gra dziala w trybie okienkowym (windowed mode)
 - [ ] Testowa rozgrywka zakonczona bez bledow
+- [ ] **env_settings.md zaktualizowany** (game path, resolution, settings)
 
 **Powiazane pliki:**
 - `files/tzared.windows.zip`
 - `plans/phase_0_prerequisites.md`
+- `env_settings.md`
 
 ---
 
@@ -115,15 +130,41 @@ Faza 0 zawiera prerekvizity niezbedne do rozpoczecia prac rozwojowych nad TzarBo
 
 ---
 
+### F0.T5: Infrastructure Documentation
+| Pole | Wartosc |
+|------|---------|
+| **ID** | F0.T5 |
+| **Tytul** | Dokumentacja infrastruktury |
+| **Opis** | Szczegolowa dokumentacja calej infrastruktury projektu (VM, sieci, limitow zasobow) |
+| **Priorytet** | SHOULD |
+| **Szacowany naklad** | S (Small) |
+| **Status** | PENDING |
+| **Agent** | DEVOPS_SENIOR |
+| **Zaleznosci** | F0.T1, F0.T2, F0.T4 |
+
+**Kryteria akceptacji:**
+- [ ] Diagram architektury infrastruktury (Mermaid)
+- [ ] Dokumentacja wszystkich VM (nazwy, IP, specyfikacje, przeznaczenie)
+- [ ] Dokumentacja sieci (switch, NAT, subnety)
+- [ ] Dokumentacja limitow zasobow (max 10GB RAM)
+- [ ] Instrukcje odtworzenia srodowiska
+- [ ] Zapisane w `docs/infrastructure.md`
+
+**Powiazane pliki:**
+- `docs/infrastructure.md`
+- `env_settings.md`
+
+---
+
 ## Metryki Fazy
 
 | Metryka | Wartosc |
 |---------|---------|
-| Liczba taskow | 4 |
+| Liczba taskow | 5 |
 | Ukonczonych | 0 |
 | W trakcie | 0 |
 | Zablokowanych | 0 |
-| Oczekujacych | 4 |
+| Oczekujacych | 5 |
 | Postep | 0% |
 
 ---

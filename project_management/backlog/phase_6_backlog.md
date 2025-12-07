@@ -81,9 +81,11 @@ Faza 6 obejmuje pelny pipeline uczenia od poczatkowych losowych sieci do zaawans
 - [ ] Auto-checkpoint co N generacji
 - [ ] Zachowanie ostatnich 10 checkpointow
 - [ ] Backup najlepszego genomu
+- [ ] **env_settings.md zaktualizowany** (checkpoint paths, backup locations)
 
 **Powiazane pliki:**
 - `plans/1general_plan.md` (sekcja 6.4)
+- `env_settings.md`
 
 ---
 
@@ -128,10 +130,12 @@ Faza 6 obejmuje pelny pipeline uczenia od poczatkowych losowych sieci do zaawans
 - [ ] Status VM (aktywne, CPU, RAM)
 - [ ] Live feed ostatnich gier
 - [ ] SignalR updates
+- [ ] **env_settings.md zaktualizowany** (dashboard port, SignalR endpoint)
 
 **Powiazane pliki:**
 - `plans/1general_plan.md` (sekcja 6.5)
 - `src/TzarBot.Dashboard/`
+- `env_settings.md`
 
 ---
 

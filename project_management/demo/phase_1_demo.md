@@ -364,8 +364,97 @@ Get-Process -Name "TzarBot*" | Stop-Process -Force
 
 ---
 
+## Raport z uruchomienia na VM
+
+> **UWAGA:** Ta sekcja MUSI zostac wypelniona po uruchomieniu demo na maszynie wirtualnej DEV.
+> Demo NIE jest kompletne bez raportu z VM!
+
+### Informacje o srodowisku
+
+| Pole | Wartosc |
+|------|---------|
+| VM Name | DEV |
+| VM IP | 192.168.100.10 |
+| RAM | 4 GB |
+| CPU Cores | 2 |
+| OS | Windows 10/11 |
+| .NET Version | TBD |
+| Data uruchomienia | TBD |
+| Wykonawca | TBD |
+
+### Status: PENDING
+
+> Raport zostanie wypelniony po uruchomieniu demo na VM DEV.
+
+### Screenshoty (wymagane min. 5)
+
+| # | Opis | Plik | Status |
+|---|------|------|--------|
+| 1 | Build output (`dotnet build`) | `phase_1_evidence/screenshot_01_build.png` | PENDING |
+| 2 | Test output (`dotnet test`) | `phase_1_evidence/screenshot_02_tests.png` | PENDING |
+| 3 | Demo menu | `phase_1_evidence/screenshot_03_menu.png` | PENDING |
+| 4 | Screen Capture output | `phase_1_evidence/screenshot_04_capture.png` | PENDING |
+| 5 | Captured screenshot (z katalogu screenshots/) | `phase_1_evidence/screenshot_05_result.png` | PENDING |
+| 6 | Input Injection - Notepad z tekstem | `phase_1_evidence/screenshot_06_notepad.png` | PENDING |
+| 7 | IPC Demo output | `phase_1_evidence/screenshot_07_ipc.png` | PENDING |
+
+### Logi (wymagane)
+
+| Log | Opis | Plik | Status |
+|-----|------|------|--------|
+| Build | Output z `dotnet build` | `phase_1_evidence/build.log` | PENDING |
+| Tests | Output z `dotnet test` | `phase_1_evidence/tests.log` | PENDING |
+| Demo | Output z uruchomienia demo | `phase_1_evidence/demo_run.log` | PENDING |
+
+### Komendy do zbierania logow
+
+```powershell
+# Utworz katalog na dowody
+mkdir project_management\demo\phase_1_evidence
+
+# Zbierz logi
+dotnet build TzarBot.slnx 2>&1 | Out-File -FilePath project_management\demo\phase_1_evidence\build.log
+dotnet test TzarBot.slnx 2>&1 | Out-File -FilePath project_management\demo\phase_1_evidence\tests.log
+
+# Uruchom demo i zapisz output
+dotnet run --project src\TzarBot.GameInterface.Demo 2>&1 | Out-File -FilePath project_management\demo\phase_1_evidence\demo_run.log
+```
+
+### Wyniki testow na VM
+
+| # | Kryterium | Oczekiwany wynik | Rzeczywisty wynik | Status |
+|---|-----------|------------------|-------------------|--------|
+| 1 | Build | 0 errors, 0 warnings | TBD | PENDING |
+| 2 | Unit Tests | 46/46 PASS | TBD | PENDING |
+| 3 | Screen Capture FPS | >= 10 FPS | TBD | PENDING |
+| 4 | Screen Capture PNG | Poprawny plik PNG | TBD | PENDING |
+| 5 | Input Injection | Tekst w Notepad | TBD | PENDING |
+| 6 | Window Detection | Znajduje okna | TBD | PENDING |
+| 7 | IPC Round-trip | < 100ms | TBD | PENDING |
+
+### Podsumowanie
+
+| Metryka | Wartosc |
+|---------|---------|
+| Kryteria MUST PASS | 0/6 |
+| Kryteria SHOULD PASS | 0/3 |
+| Screenshoty zebrane | 0/7 |
+| Logi zebrane | 0/3 |
+| **Status ogolny** | **PENDING** |
+
+### Uwagi z uruchomienia
+
+> (Wypelnic po uruchomieniu demo)
+>
+> - Problemy napotkane: ...
+> - Rozwiazania: ...
+> - Dodatkowe obserwacje: ...
+
+---
+
 ## Historia wersji
 
 | Wersja | Data | Autor | Zmiany |
 |--------|------|-------|--------|
+| 1.1 | 2025-12-07 | Claude | Dodano sekcje "Raport z uruchomienia na VM" |
 | 1.0 | 2025-12-07 | Agent PM | Utworzenie dokumentu |

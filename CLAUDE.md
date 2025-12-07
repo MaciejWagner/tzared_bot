@@ -80,6 +80,57 @@ When resuming an interrupted session:
 
 This ensures workflow can be safely interrupted and resumed at any point.
 
+## Environment Settings Protocol
+
+**CRITICAL:** Wszystkie ustawienia środowiskowe, konfiguracje infrastruktury i parametry utworzone podczas pracy MUSZĄ być zapisane w `env_settings.md`.
+
+### Kiedy aktualizować env_settings.md
+
+Aktualizuj plik `env_settings.md` przy:
+- Tworzeniu/konfiguracji VM (nazwy, IP, credentials)
+- Konfiguracji sieci (switche, NAT, porty)
+- Instalacji oprogramowania (ścieżki, wersje)
+- Tworzeniu kont/użytkowników
+- Konfiguracji usług (porty, endpointy)
+- Ustawieniach build/deploy
+- Jakichkolwiek wartościach które będą potrzebne później
+
+### Format env_settings.md
+
+```markdown
+# TzarBot Environment Settings
+
+## Host Machine
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Hyper-V Switch | TzarBotSwitch | Internal |
+| NAT Subnet | 192.168.100.0/24 | |
+| Host IP | 192.168.100.1 | Gateway for VMs |
+
+## Virtual Machines
+| VM Name | IP | Username | Purpose |
+|---------|-----|----------|---------|
+| TzarBot-Dev | 192.168.100.10 | tzarbot | Development VM |
+
+## Paths
+| Component | Path |
+|-----------|------|
+| Tzar Game | C:\Games\Tzar |
+| Bot Logs | C:\TzarBot\Logs |
+
+## Ports & Services
+| Service | Port | Protocol |
+|---------|------|----------|
+| Dashboard | 5000 | HTTP |
+| SignalR | 5001 | WebSocket |
+```
+
+### Zasady
+1. **Nigdy nie zapisuj haseł** - używaj placeholderów lub odwołań do secure storage
+2. **Aktualizuj natychmiast** - nie czekaj do końca zadania
+3. **Dodawaj komentarze** - wyjaśnij dlaczego dana wartość została wybrana
+4. **Weryfikuj przed użyciem** - sprawdź czy wartości są aktualne
+
 ## Build & Development Commands
 
 ```bash
@@ -111,6 +162,80 @@ See `plans/1general_plan.md` for the complete project architecture covering:
 - **Image Processing:** OpenCvSharp4
 - **Virtualization:** Hyper-V + PowerShell
 - **Dashboard:** Blazor Server
+
+## Infrastructure Constraints
+
+| Constraint | Value | Notes |
+|------------|-------|-------|
+| **Max RAM dla VM** | **10 GB** | HARD LIMIT - suma RAM wszystkich VM |
+| DEV VM | 4 GB | Maszyna deweloperska |
+| Workers Pool | 6 GB | Pozostale dla worker VM (np. 3x2GB lub 6x1GB) |
+
+**WAZNE:** Przy tworzeniu/planowaniu VM ZAWSZE weryfikuj limit 10GB RAM!
+
+Szczegoly: `env_settings.md` (Resource Limits) oraz `project_management/backlog/phase_4_backlog.md` (Infrastructure Constraints)
+
+## Demo Documentation Requirements
+
+Dokumentacja demo dla kazdej fazy MUSI zawierac:
+
+### 1. Scenariusze testowe
+- Kroki do wykonania
+- Oczekiwane wyniki
+- Kryteria sukcesu
+
+### 2. Raport z uruchomienia na VM (WYMAGANE)
+Kazde demo MUSI byc uruchomione na maszynie wirtualnej (DEV lub Worker) i udokumentowane:
+
+| Element | Wymaganie |
+|---------|-----------|
+| **Screenshoty** | Min. 3-5 zrzutow ekranu z kluczowych krokow |
+| **Logi** | Pelny output z konsoli (zapisany do pliku .log) |
+| **VM Info** | Nazwa VM, IP, specyfikacja (RAM, CPU) |
+| **Timestamp** | Data i godzina uruchomienia |
+| **Status** | PASS/FAIL dla kazdego kryterium |
+
+### 3. Struktura raportu z VM
+```markdown
+## Raport z uruchomienia na VM
+
+### Informacje o srodowisku
+| Pole | Wartosc |
+|------|---------|
+| VM Name | DEV |
+| VM IP | 192.168.100.10 |
+| RAM | 4 GB |
+| Data uruchomienia | YYYY-MM-DD HH:MM |
+
+### Screenshoty
+- `demo_evidence/screenshot_01_build.png` - Build output
+- `demo_evidence/screenshot_02_tests.png` - Test results
+- ...
+
+### Logi
+- `demo_evidence/build.log`
+- `demo_evidence/tests.log`
+- `demo_evidence/demo_run.log`
+
+### Wyniki
+| Kryterium | Status | Uwagi |
+|-----------|--------|-------|
+| Build | PASS | 0 errors, 0 warnings |
+| Tests | PASS | 46/46 passed |
+| ... | ... | ... |
+```
+
+### 4. Lokalizacja artefaktow
+```
+project_management/
+└── demo/
+    ├── phase_X_demo.md           # Scenariusze + Raport
+    └── phase_X_evidence/         # Screenshoty i logi
+        ├── screenshot_01.png
+        ├── screenshot_02.png
+        ├── build.log
+        └── demo_run.log
+```
 
 ## Available Agents (Slash Commands)
 
@@ -199,6 +324,7 @@ tzar_bot/
 ├── CLAUDE.md                 # This file - project guidance
 ├── chat_history.md           # Conversation log
 ├── workflow_progress.md      # Current workflow status
+├── env_settings.md           # Environment configuration (IPs, paths, ports)
 ├── plans/                    # Project plans and documentation
 │   └── 1general_plan.md
 ├── prompts/                  # Reusable prompts for Claude
@@ -217,7 +343,7 @@ tzar_bot/
 │   │   ├── phase_5_backlog.md  # Game State Detection
 │   │   └── phase_6_backlog.md  # Training Pipeline
 │   └── demo/                 # Demo documentation per phase
-│       └── phase_1_demo.md   # Phase 1 demo instructions
+│       └── phase_X_demo.md   # Demo instructions + VM execution report
 ├── src/                      # Source code
 │   ├── TzarBot.sln           # Main solution
 │   ├── TzarBot.GameInterface/      # Screen capture & input
