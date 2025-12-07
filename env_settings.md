@@ -25,7 +25,7 @@
 |---------|-------|-------|
 | OS | Windows 11 | Host development machine |
 | .NET Version | 8.0 | Required for TzarBot |
-| Hyper-V | PENDING | Awaiting installation verification |
+| Hyper-V | ENABLED | Verified 2025-12-07 |
 
 ---
 
@@ -33,10 +33,10 @@
 
 | Setting | Value | Notes |
 |---------|-------|-------|
-| Virtual Switch | TzarBotSwitch | Internal switch (to be created) |
-| NAT Name | TzarBotNAT | (to be created) |
-| NAT Subnet | 192.168.100.0/24 | |
-| Host Gateway IP | 192.168.100.1 | Interface on TzarBotSwitch |
+| Virtual Switch | TzarBotSwitch | Internal switch - CREATED 2025-12-07 |
+| NAT Name | TzarBotNAT | CREATED 2025-12-07 |
+| NAT Subnet | 192.168.100.0/24 | Active |
+| Host Gateway IP | 192.168.100.1 | InterfaceIndex: 19 |
 
 ---
 
@@ -44,10 +44,42 @@
 
 | VM Name | IP | RAM | Purpose | Status |
 |---------|-----|-----|---------|--------|
-| DEV | 192.168.100.10 | 4 GB | Development/Testing | PENDING |
-| TzarBot-Worker-01 | 192.168.100.101 | 1-2 GB | Training worker | PENDING |
-| TzarBot-Worker-02 | 192.168.100.102 | 1-2 GB | Training worker | PENDING |
-| TzarBot-Worker-03 | 192.168.100.103 | 1-2 GB | Training worker | PENDING |
+| DEV | 192.168.100.10 | 4 GB | Development/Testing | RUNNING - Network OK |
+
+### VM Credentials
+
+| VM | Username | Password | Notes |
+|----|----------|----------|-------|
+| DEV | test | (brak) | Auto-login enabled |
+
+### VM Template
+
+Po skonfigurowaniu DEV można utworzyć template do klonowania worker VM:
+
+```powershell
+# 1. Wyłącz VM
+Stop-VM -Name "DEV" -Force
+
+# 2. Eksportuj jako template
+Export-VM -Name "DEV" -Path "C:\Hyper-V\Templates"
+
+# 3. Lub skopiuj VHDX jako base image
+Copy-Item "C:\ProgramData\Microsoft\Windows\Virtual Hard Disks\DEV.vhdx" "C:\Hyper-V\Templates\TzarBot-Base.vhdx"
+```
+
+Konfiguracja DEV (do replikacji na workerach):
+- Windows 10/11 Pro (nieaktywowany)
+- .NET SDK 8.0.416
+- IP: DHCP lub statyczne z puli 192.168.100.101-199
+- User: test (bez hasła)
+
+### Worker VMs (do utworzenia w Phase 4)
+
+| VM Name | IP | RAM | Status |
+|---------|-----|-----|--------|
+| TzarBot-Worker-01 | 192.168.100.101 | 1-2 GB | PENDING |
+| TzarBot-Worker-02 | 192.168.100.102 | 1-2 GB | PENDING |
+| TzarBot-Worker-03 | 192.168.100.103 | 1-2 GB | PENDING |
 
 **RAM Summary:** DEV (4GB) + Workers (max 6GB) = 10GB LIMIT
 
@@ -67,7 +99,7 @@
 
 | Component | Path | Notes |
 |-----------|------|-------|
-| Tzar Game | TBD | To be set after installation |
+| Tzar Game | C:\Program Files\Tzared\Tzared.exe | Windowed mode enabled |
 | Bot Working Dir | TBD | |
 
 ---

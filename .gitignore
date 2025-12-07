@@ -71,3 +71,4 @@ appsettings.*.json
 __pycache__/
 *.py[cod]
 nul
+files/Windows.iso
