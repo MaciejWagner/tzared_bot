@@ -156,8 +156,41 @@ Przykład: `agent-project-manager.md` z `name: agent-project-manager`
 
 | Komenda | Opis |
 |---------|------|
+| `/continue-workflow` | Kontynuuj workflow od miejsca zatrzymania (czyta `continue.md`) |
 | `/prompt [opis]` | Generuje nowy prompt i zapisuje w katalogu prompts |
 | `/audit [instrukcje]` | Szybki audyt (bez agenta) |
+
+## Workflow Interruption Protocol
+
+**WAŻNE:** Przy zatrzymaniu workflow (np. oczekiwanie na instalację, przerwanie przez użytkownika):
+
+1. **Zaktualizuj `continue.md`** z aktualnym statusem:
+   - Ostatnia ukończona faza/task
+   - Aktualny task i jego status
+   - Powód wstrzymania
+   - Następne kroki po wznowieniu
+   - Komendy do wykonania
+
+2. **Format `continue.md`:**
+```markdown
+# TzarBot Workflow Continuation Report
+
+**Ostatnia aktualizacja:** [data]
+**Status:** WSTRZYMANY
+
+## Status aktualny
+| Pole | Wartość |
+|------|---------|
+| Ostatnia ukończona faza | ... |
+| Aktualny task | ... |
+| Status | WSTRZYMANY - [powód] |
+
+## Następne kroki po wznowieniu
+1. ...
+2. ...
+```
+
+3. **Wznowienie:** Użyj `/continue-workflow` aby kontynuować od miejsca zatrzymania
 
 ## Project Structure
 
