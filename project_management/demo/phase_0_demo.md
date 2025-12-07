@@ -1,8 +1,9 @@
 # Demo Fazy 0: Prerequisites
 
-**Wersja:** 1.0
+**Wersja:** 1.1
 **Data utworzenia:** 2025-12-07
-**Status:** COMPLETED ✅
+**Ostatnia aktualizacja:** 2025-12-07 15:22
+**Status:** COMPLETED
 
 ---
 
@@ -20,35 +21,35 @@ Ten dokument zawiera raport z demo Fazy 0 projektu TzarBot. Phase 0 weryfikuje p
 
 ## Wyniki Demo z VM DEV
 
-### Informacje o środowisku
+### Informacje o srodowisku
 
-| Pole | Wartość |
+| Pole | Wartosc |
 |------|---------|
 | VM Name | DEV |
 | VM IP | 192.168.100.10 |
-| RAM | 2.49 GB (dostępne) / 4 GB (przydzielone) |
+| RAM | 2.56 GB (dostepne) / 4 GB (przydzielone) |
 | CPU | Intel(R) Xeon(R) CPU X3440 @ 2.53GHz (1 core) |
 | OS | Microsoft Windows 10 Pro (Build 19045) |
-| Free Disk | 28.93 GB / 59.34 GB |
+| Free Disk | 27.94 GB / 59.34 GB |
 | .NET Version | 8.0.416 |
-| Data uruchomienia | 2025-12-07 13:17:51 |
+| Data uruchomienia | 2025-12-07 15:22:36 |
 | Wykonawca | Claude Code (automated) |
 
-### Status: PASSED ✅ (7/7 testów)
+### Status: PASSED (7/7 testow)
 
 ---
 
-## Wyniki testów
+## Wyniki testow
 
-| # | Test | Status | Szczegóły |
+| # | Test | Status | Szczegoly |
 |---|------|--------|-----------|
-| 1 | System Info | ✅ PASS | OS: Windows 10 Pro, RAM: 2.49 GB |
-| 2 | Network IP | ✅ PASS | 192.168.100.10 (/24) |
-| 3 | Gateway Ping | ✅ PASS | 192.168.100.1 reachable |
-| 4 | Internet Ping | ✅ PASS | 8.8.8.8 reachable |
-| 5 | .NET SDK | ✅ PASS | Version 8.0.416 |
-| 6 | Tzar Game | ✅ PASS | C:\Program Files\Tzared\Tzared.exe (201.47 MB) |
-| 7 | Disk Space | ✅ PASS | 28.93 GB free |
+| 1 | System Info | PASS | OS: Windows 10 Pro, RAM: 2.56 GB |
+| 2 | Network IP | PASS | 192.168.100.10 (/24) |
+| 3 | Gateway Ping | PASS | 192.168.100.1 reachable |
+| 4 | Internet Ping | PASS | 8.8.8.8 reachable |
+| 5 | .NET SDK | PASS | Version 8.0.416 |
+| 6 | Tzar Game | PASS | C:\Program Files\Tzared\Tzared.exe (201.47 MB) |
+| 7 | Disk Space | PASS | 27.94 GB free |
 
 ---
 
@@ -56,14 +57,19 @@ Ten dokument zawiera raport z demo Fazy 0 projektu TzarBot. Phase 0 weryfikuje p
 
 ### Logi
 
-| Log | Ścieżka | Status |
+| Log | Sciezka | Status |
 |-----|---------|--------|
-| Demo Log | `demo_results/Phase0/phase0_demo_2025-12-07_13-17-51.log` | ✅ |
-| Report | `demo_results/Phase0/phase0_report_2025-12-07_13-17-51.md` | ✅ |
+| Demo Log | `project_management/demo/phase_0_evidence/phase0_demo_2025-12-07_15-22-36.log` | DONE |
+| Report | `project_management/demo/phase_0_evidence/phase0_report_2025-12-07_15-22-36.md` | DONE |
 
 ### Screenshoty
 
-> Screenshoty pominięte (demo uruchomione przez PowerShell Direct bez sesji interaktywnej).
+| # | Opis | Plik | Status |
+|---|------|------|--------|
+| 1 | Desktop VM DEV | `phase_0_evidence/01_desktop.png` | ✅ DONE |
+| 2 | .NET SDK Version | `phase_0_evidence/02_dotnet_version.png` | ✅ DONE |
+| 3 | Tzar Game Installation | `phase_0_evidence/03_tzar_game.png` | ✅ DONE |
+| 4 | Network Configuration | `phase_0_evidence/04_network.png` | ✅ DONE |
 
 ---
 
@@ -119,4 +125,6 @@ Ten dokument zawiera raport z demo Fazy 0 projektu TzarBot. Phase 0 weryfikuje p
 
 | Wersja | Data | Autor | Zmiany |
 |--------|------|-------|--------|
-| 1.0 | 2025-12-07 | Claude Code | Utworzenie dokumentu z wynikami demo |
+| 1.2 | 2025-12-07 15:57 | Claude Code | Dodano 4 screenshoty z sesji interaktywnej VMConnect |
+| 1.1 | 2025-12-07 15:22 | Claude Code | Ponowne uruchomienie demo, aktualizacja wynikow |
+| 1.0 | 2025-12-07 13:17 | Claude Code | Utworzenie dokumentu z wynikami demo |

@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Commit Rules
+
+**IMPORTANT:** When creating git commits:
+- NEVER add "Co-Authored-By" lines
+- NEVER add "Generated with Claude Code" or similar attribution
+- NEVER mention Claude, Anthropic, or AI in commit messages
+- Keep commit messages clean and professional, focused only on the changes
+
 ## Project Overview
 
 Tzar Bot - AI bot for the strategy game Tzar (https://tza.red/) using genetic algorithms and neural networks.
