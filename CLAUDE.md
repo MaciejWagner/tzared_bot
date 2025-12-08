@@ -277,6 +277,7 @@ Przykład: `agent-project-manager.md` z `name: agent-project-manager`
 | `tzarbot-agent-ai-senior` | Senior AI/ML Engineer | machine-learning, neural-networks, genetic-algorithms, onnx |
 | `tzarbot-agent-fullstack-blazor` | Fullstack Blazor Developer | blazor, signalr, chartjs, css |
 | `tzarbot-agent-hyperv-admin` | Hyper-V Infrastructure Admin | powershell, hyper-v, windows-server, networking |
+| `tzarbot-agent-automation-tester` | Senior Automation Tester | xunit, test-automation, coverage, test-strategy |
 
 ### Agenci Systemowi
 

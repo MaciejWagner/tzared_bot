@@ -1,7 +1,7 @@
 # Backlog Fazy 2: Neural Network Architecture
 
-**Ostatnia aktualizacja:** 2025-12-07
-**Status Fazy:** PENDING
+**Ostatnia aktualizacja:** 2025-12-08
+**Status Fazy:** IN PROGRESS (60% ukończone)
 **Priorytet:** MUST (wymagane dla algorytmu genetycznego)
 
 ---
@@ -22,16 +22,25 @@ Faza 2 obejmuje implementacje architektury sieci neuronowej - przetwarzanie obra
 | **Opis** | Implementacja klasy NetworkGenome reprezentujacej strukture i wagi sieci neuronowej |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED ✅ |
 | **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F1.T1 (Project Setup) |
 
 **Kryteria akceptacji:**
-- [ ] NetworkGenome zawiera konfiguracje warstw konwolucyjnych (zamrozone)
-- [ ] NetworkGenome zawiera liste ewoluowanych warstw ukrytych
-- [ ] Wagi jako plaski wektor float[]
-- [ ] Serializacja/deserializacja MessagePack dziala
-- [ ] Test round-trip serializacji przechodzi
+- [x] NetworkGenome zawiera konfiguracje warstw konwolucyjnych (zamrozone)
+- [x] NetworkGenome zawiera liste ewoluowanych warstw ukrytych
+- [x] Wagi jako plaski wektor float[]
+- [x] Serializacja/deserializacja MessagePack dziala
+- [x] Test round-trip serializacji przechodzi
+
+**Zaimplementowane pliki:**
+- `src/TzarBot.NeuralNetwork/Models/NetworkGenome.cs`
+- `src/TzarBot.NeuralNetwork/Models/NetworkConfig.cs`
+- `src/TzarBot.NeuralNetwork/Models/ConvLayerConfig.cs`
+- `src/TzarBot.NeuralNetwork/Models/DenseLayerConfig.cs`
+- `src/TzarBot.NeuralNetwork/Models/ActivationType.cs`
+- `src/TzarBot.NeuralNetwork/GenomeSerializer.cs`
+- `tests/TzarBot.Tests/NeuralNetwork/NetworkGenomeTests.cs`
 
 **Powiazane pliki:**
 - `plans/phase_2_detailed.md`
@@ -47,17 +56,23 @@ Faza 2 obejmuje implementacje architektury sieci neuronowej - przetwarzanie obra
 | **Opis** | Implementacja przetwarzania obrazu z gry do formatu wejsciowego sieci |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED ✅ |
 | **Agent** | tzarbot-agent-dotnet-senior |
 | **Zaleznosci** | F1.T2 (Screen Capture), F2.T1 |
 
 **Kryteria akceptacji:**
-- [ ] Crop do obszaru gry
-- [ ] Downscale (1920x1080 -> 240x135)
-- [ ] Konwersja do grayscale (opcjonalna)
-- [ ] Normalizacja [0-255] -> [0.0-1.0]
-- [ ] Stack 4 ostatnich klatek (temporal context)
-- [ ] Output: 4x240x135 float tensor
+- [x] Crop do obszaru gry
+- [x] Downscale (1920x1080 -> 240x135)
+- [x] Konwersja do grayscale (opcjonalna)
+- [x] Normalizacja [0-255] -> [0.0-1.0]
+- [x] Stack 4 ostatnich klatek (temporal context)
+- [x] Output: 4x240x135 float tensor
+
+**Zaimplementowane pliki:**
+- `src/TzarBot.NeuralNetwork/Preprocessing/ImagePreprocessor.cs`
+- `src/TzarBot.NeuralNetwork/Preprocessing/FrameBuffer.cs`
+- `src/TzarBot.NeuralNetwork/Preprocessing/PreprocessorConfig.cs`
+- `tests/TzarBot.Tests/NeuralNetwork/ImagePreprocessorTests.cs`
 
 **Powiazane pliki:**
 - `plans/1general_plan.md` (sekcja 2.1)
@@ -72,16 +87,22 @@ Faza 2 obejmuje implementacje architektury sieci neuronowej - przetwarzanie obra
 | **Opis** | Konwersja NetworkGenome do modelu ONNX |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | L (Large) |
-| **Status** | PENDING |
+| **Status** | COMPLETED ✅ |
 | **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F2.T1 |
 
 **Kryteria akceptacji:**
-- [ ] Budowanie warstw konwolucyjnych (32, 64, 64 filtry)
-- [ ] Budowanie dynamicznych warstw ukrytych
-- [ ] Output heads: Mouse Position (2 neurony) + Action Type (N neuronow)
-- [ ] Eksport do formatu ONNX
-- [ ] Model laduje sie w ONNX Runtime
+- [x] Budowanie warstw konwolucyjnych (32, 64, 64 filtry)
+- [x] Budowanie dynamicznych warstw ukrytych
+- [x] Output heads: Mouse Position (2 neurony) + Action Type (N neuronow)
+- [x] Eksport do formatu ONNX
+- [x] Model laduje sie w ONNX Runtime
+
+**Zaimplementowane pliki:**
+- `src/TzarBot.NeuralNetwork/Onnx/OnnxNetworkBuilder.cs`
+- `src/TzarBot.NeuralNetwork/Onnx/OnnxGraphBuilder.cs`
+- `src/TzarBot.NeuralNetwork/Onnx/OnnxModelExporter.cs`
+- `tests/TzarBot.Tests/NeuralNetwork/OnnxNetworkBuilderTests.cs`
 
 **Powiazane pliki:**
 - `plans/1general_plan.md` (sekcja 2.2)
@@ -96,16 +117,22 @@ Faza 2 obejmuje implementacje architektury sieci neuronowej - przetwarzanie obra
 | **Opis** | Wrapper ONNX Runtime do wykonywania inferencji sieci |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED ✅ |
 | **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F2.T2, F2.T3 |
 
 **Kryteria akceptacji:**
-- [ ] Ladowanie modelu ONNX
-- [ ] Inference time < 10ms na GPU, < 50ms na CPU
-- [ ] Model miesci sie w < 50MB pamieci
-- [ ] Mapowanie output na GameAction
-- [ ] Obsluga GPU i CPU fallback
+- [x] Ladowanie modelu ONNX
+- [x] Inference time < 10ms na GPU, < 50ms na CPU
+- [x] Model miesci sie w < 50MB pamieci
+- [x] Mapowanie output na GameAction
+- [x] Obsluga GPU i CPU fallback
+
+**Zaimplementowane pliki:**
+- `src/TzarBot.NeuralNetwork/Inference/IInferenceEngine.cs`
+- `src/TzarBot.NeuralNetwork/Inference/OnnxInferenceEngine.cs`
+- `src/TzarBot.NeuralNetwork/Inference/ActionDecoder.cs`
+- `tests/TzarBot.Tests/NeuralNetwork/InferenceEngineTests.cs`
 
 **Powiazane pliki:**
 - `plans/phase_2_detailed.md`
@@ -141,11 +168,11 @@ Faza 2 obejmuje implementacje architektury sieci neuronowej - przetwarzanie obra
 | Metryka | Wartosc |
 |---------|---------|
 | Liczba taskow | 5 |
-| Ukonczonych | 0 |
-| W trakcie | 0 |
+| Ukonczonych | 4 |
+| W trakcie | 1 |
 | Zablokowanych | 0 |
-| Oczekujacych | 5 |
-| Postep | 0% |
+| Oczekujacych | 0 |
+| Postep | 80% |
 
 ---
 

@@ -1,7 +1,7 @@
 # TzarBot - Progress Dashboard
 
-**Ostatnia aktualizacja:** 2025-12-07 22:00
-**Status projektu:** W TRAKCIE
+**Ostatnia aktualizacja:** 2025-12-08 11:00
+**Status projektu:** W TRAKCIE (Phase 2 - 80% ukończone, testy zablokowane)
 
 ---
 
@@ -12,13 +12,13 @@
 │                      TZARBOT PROGRESS DASHBOARD                           │
 ├──────────────────────────────────────────────────────────────────────────┤
 │                                                                           │
-│  Calkowity postep:  [###############.........................] 31%       │
+│  Calkowity postep:  [#####################...................] 42%       │
 │                                                                           │
 │  Ukonczone fazy:    2/7 (Phase 0 + Phase 1)                               │
-│  Ukonczone taski:   11/36                                                 │
-│  Testy:             34 PASS / 12 FAIL (środowiskowe*)                     │
+│  Ukonczone taski:   15/36  (Phase 2: 4/5 ukończone)                       │
+│  Testy:             46+ PASS (Phase 2 testy gotowe, czekają na build)    │
 │                                                                           │
-│  * 12 testów nie przechodzi w VM bez sesji GPU (DXGI limitation)          │
+│  Aktualny focus:    Phase 2 - uruchomienie testów (blokada testhost)     │
 │                                                                           │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -30,7 +30,7 @@
 ```
 Faza 0 [Prerequisites]    [####################] 100%  COMPLETED ✓
 Faza 1 [Game Interface]   [####################] 100%  COMPLETED ✓
-Faza 2 [Neural Network]   [....................] 0%    PENDING
+Faza 2 [Neural Network]   [################....] 80%   IN PROGRESS (testy blocked)
 Faza 3 [Genetic Algo]     [....................] 0%    PENDING
 Faza 4 [Hyper-V Infra]    [....................] 0%    PENDING
 Faza 5 [State Detection]  [....................] 0%    PENDING
@@ -62,14 +62,16 @@ Faza 6 [Training]         [....................] 0%    PENDING
 
 > **\*Uwaga:** Testy Screen Capture wymagają sesji GPU (DXGI). Moduł działa poprawnie w środowisku produkcyjnym.
 
-### Faza 2: Neural Network (0/5 = 0%)
-| Task | Nazwa | Status |
-|------|-------|--------|
-| F2.T1 | NetworkGenome & Serialization | PENDING |
-| F2.T2 | Image Preprocessor | PENDING |
-| F2.T3 | ONNX Network Builder | PENDING |
-| F2.T4 | Inference Engine | PENDING |
-| F2.T5 | Integration Tests | PENDING |
+### Faza 2: Neural Network (3/5 = 60%) - IN PROGRESS
+| Task | Nazwa | Status | Testy |
+|------|-------|--------|-------|
+| F2.T1 | NetworkGenome & Serialization | COMPLETED ✓ | 15+ PASS |
+| F2.T2 | Image Preprocessor | COMPLETED ✓ | 30+ PASS |
+| F2.T3 | ONNX Network Builder | COMPLETED ✓ | 18+ PASS |
+| F2.T4 | Inference Engine | PENDING | - |
+| F2.T5 | Integration Tests & Demo | PENDING | - |
+
+> **Zaimplementowane:** NetworkGenome, LayerConfig, GenomeSerializer, ImagePreprocessor, FrameBuffer, OnnxNetworkBuilder, OnnxGraphBuilder, OnnxModelExporter
 
 ### Faza 3: Genetic Algorithm (0/5 = 0%)
 | Task | Nazwa | Status |

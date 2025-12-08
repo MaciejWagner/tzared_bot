@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <RollForward>LatestMajor</RollForward>
+    <!-- Prevent testhost from hanging -->
+    <VSTestHostProcessExitTimeout>60000</VSTestHostProcessExitTimeout>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +27,10 @@
     <ProjectReference Include="..\..\src\TzarBot.GameInterface\TzarBot.GameInterface.csproj" />
     <ProjectReference Include="..\..\src\TzarBot.Common\TzarBot.Common.csproj" />
     <ProjectReference Include="..\..\src\TzarBot.NeuralNetwork\TzarBot.NeuralNetwork.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
