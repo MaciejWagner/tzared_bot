@@ -32,8 +32,11 @@
       "Bash(Select-Object -First 20)",
       "Bash(timeout 120 dotnet test:*)",
       "Bash(timeout 300 dotnet test:*)",
-      "Bash(cmd /c \"taskkill /IM testhost.exe /F\")",
-      "Bash(dotnet clean:*)"
+
+      "Bash(dotnet clean:*)",
+      "Bash(timeout 60 dotnet test:*)",
+      "Bash(cmd /c \"dotnet test C:\\Users\\maciek\\ai_experiments\\tzar_bot\\tests\\TzarBot.Tests\\TzarBot.Tests.csproj /p:BuildInParallel=false 2>&1\")",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

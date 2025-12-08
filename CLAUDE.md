@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent Workflow Rules
+
+**CRITICAL:** During agent workflow execution:
+- NEVER use taskkill or kill commands on processes
+- NEVER interrupt running agents or background tasks
+- Wait patiently for agents to complete their work
+- If a test fails, fix the issue instead of killing the process
+- Let dotnet test complete naturally even if it takes time
+- Do not spawn multiple parallel test runs that conflict
+
 ## Git Commit Rules
 
 **IMPORTANT:** When creating git commits:
