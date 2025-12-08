@@ -22,7 +22,8 @@ namespace TzarBot.NeuralNetwork.Onnx;
 public sealed class OnnxNetworkBuilder
 {
     private readonly NetworkConfig _config;
-    private readonly Random _convWeightRng;
+    private readonly int _convWeightSeed;
+    private Random _convWeightRng;
 
     // ONNX opset version (13 supports all operations we need)
     private const int OpsetVersion = 13;
@@ -35,6 +36,7 @@ public sealed class OnnxNetworkBuilder
     public OnnxNetworkBuilder(NetworkConfig? config = null, int convWeightSeed = 42)
     {
         _config = config ?? NetworkConfig.Default();
+        _convWeightSeed = convWeightSeed;
         _convWeightRng = new Random(convWeightSeed);
     }
 
@@ -45,6 +47,10 @@ public sealed class OnnxNetworkBuilder
     /// <returns>ONNX model as byte array</returns>
     public byte[] Build(NetworkGenome genome)
     {
+        // Reset RNG to ensure deterministic conv weights for each Build() call
+        // This is critical for serialization tests - same genome must produce identical models
+        _convWeightRng = new Random(_convWeightSeed);
+
         ValidateGenome(genome);
 
         var graph = new OnnxGraphBuilder("TzarBotNetwork");

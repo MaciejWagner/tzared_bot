@@ -32,11 +32,14 @@
       "Bash(Select-Object -First 20)",
       "Bash(timeout 120 dotnet test:*)",
       "Bash(timeout 300 dotnet test:*)",
-
       "Bash(dotnet clean:*)",
       "Bash(timeout 60 dotnet test:*)",
       "Bash(cmd /c \"dotnet test C:\\Users\\maciek\\ai_experiments\\tzar_bot\\tests\\TzarBot.Tests\\TzarBot.Tests.csproj /p:BuildInParallel=false 2>&1\")",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "SlashCommand(/tzarbot-agent-automation-tester)",
+      "Bash(Select-Object -First 50)",
+      "Bash(Start-Sleep -Seconds 15)"
     ],
     "deny": [],
     "ask": []

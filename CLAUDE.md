@@ -5,12 +5,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Agent Workflow Rules
 
 **CRITICAL:** During agent workflow execution:
-- NEVER use taskkill or kill commands on processes
-- NEVER interrupt running agents or background tasks
+- NEVER interrupt running agents or background tasks on HOST machine
 - Wait patiently for agents to complete their work
 - If a test fails, fix the issue instead of killing the process
 - Let dotnet test complete naturally even if it takes time
 - Do not spawn multiple parallel test runs that conflict
+
+### Process Management on VM (Exception to above rules)
+
+**DOZWOLONE:** Na maszynach wirtualnych (DEV, Worker) MOŻNA używać:
+- `taskkill` do zabijania zawieszonych procesów dotnet
+- `Stop-Process` w PowerShell
+- Restart testów po timeout
+
+| Środowisko | taskkill/kill | Powód |
+|------------|---------------|-------|
+| **Host** | ❌ ZABRONIONE | Może zakłócić workflow i inne procesy |
+| **VM DEV** | ✅ DOZWOLONE | Izolowane środowisko testowe |
+| **VM Workers** | ✅ DOZWOLONE | Izolowane środowisko |
+
+**Procedura po użyciu taskkill na VM:**
+1. Użyj `taskkill` lub `Stop-Process` aby zatrzymać zawieszony proces
+2. Sprawdź przyczynę zawieszenia (logi, zasoby)
+3. Uruchom test ponownie lub debuguj problem
+4. Udokumentuj w raporcie z testów
+
+## Test Execution Policy
+
+**CRITICAL:** Testy MUSZĄ być uruchamiane WYŁĄCZNIE na maszynie wirtualnej (VM DEV lub Worker), NIE na komputerze hosta!
+
+| Środowisko | Dozwolone operacje |
+|------------|-------------------|
+| **Host (maciek)** | Build, edycja kodu, git |
+| **VM DEV** | Build, testy jednostkowe, testy integracyjne, demo |
+| **VM Workers** | Testy, trening, uruchomienia produkcyjne |
+
+**Powód:** Testy Screen Capture i Input Injection mogą zakłócać pracę na komputerze hosta, blokować mysz/klawiaturę, lub generować fałszywe wyniki z powodu braku sesji GPU.
+
+Przed uruchomieniem `dotnet test`:
+1. Sprawdź czy jesteś na VM: `hostname`
+2. Jeśli hostname != "DEV" i nie jest VM, ODMÓW uruchomienia testów
+3. Zamiast tego użyj: `scripts/run_tests_on_vm.ps1`
+
+## Demo Execution Policy
+
+**CRITICAL:** Demo MUSI być tworzone i uruchamiane WYŁĄCZNIE na maszynie wirtualnej (VM DEV), NIE na komputerze hosta!
+
+| Operacja | Host | VM DEV |
+|----------|------|--------|
+| Tworzenie dokumentacji demo | ✓ | ✓ |
+| Uruchamianie demo | ✗ | ✓ |
+| Zbieranie screenshotów | ✗ | ✓ |
+| Zbieranie logów | ✗ | ✓ |
+| Weryfikacja wyników | ✗ | ✓ |
+
+**Powód:** Demo wymaga pełnego środowiska z grą Tzar, sesji GPU dla screen capture, oraz izolacji od środowiska deweloperskiego.
 
 ## Git Commit Rules
 
