@@ -1,0 +1,418 @@
+@page "/charts"
+@inject ITrainingStateService TrainingService
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Charts - TzarBot Dashboard</PageTitle>
+
+<div class="charts-page">
+    <div class="page-header">
+        <h1>Training Charts</h1>
+    </div>
+
+    <div class="charts-grid">
+        <!-- Fitness Over Time -->
+        <div class="chart-card full-width">
+            <div class="chart-header">
+                <h3>Fitness Over Generations</h3>
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="dot best"></span>Best</span>
+                    <span class="legend-item"><span class="dot avg"></span>Average</span>
+                    <span class="legend-item"><span class="dot worst"></span>Worst</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="fitnessOverTimeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Win Rate Over Time -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Win Rate Trend</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="winRateChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Fitness Distribution -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Current Fitness Distribution</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="fitnessDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Stage Timeline -->
+        <div class="chart-card full-width">
+            <div class="chart-header">
+                <h3>Training Progress Timeline</h3>
+            </div>
+            <div class="chart-body timeline">
+                @foreach (var stage in GetStageTimeline())
+                {
+                    <div class="timeline-item @(stage.IsCurrent ? "current" : stage.IsCompleted ? "completed" : "pending")">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="stage-name">@stage.Name</span>
+                            @if (stage.StartGeneration.HasValue)
+                            {
+                                <span class="stage-info">Gen @stage.StartGeneration - @(stage.EndGeneration?.ToString() ?? "ongoing")</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<DashboardGenerationStats> _history = new();
+
+    protected override void OnInitialized()
+    {
+        _history = TrainingService.GenerationHistory.ToList();
+        TrainingService.OnGenerationComplete += HandleGenerationComplete;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeChartsAsync();
+        }
+    }
+
+    private async Task InitializeChartsAsync()
+    {
+        try
+        {
+            // Fitness Over Time Chart
+            var fitnessData = new
+            {
+                labels = _history.Select(h => h.Generation).ToArray(),
+                best = _history.Select(h => h.BestFitness).ToArray(),
+                average = _history.Select(h => h.AverageFitness).ToArray(),
+                worst = _history.Select(h => h.WorstFitness).ToArray()
+            };
+            await JS.InvokeVoidAsync("dashboardCharts.initFitnessChart", "fitnessOverTimeChart", fitnessData);
+
+            // Win Rate Chart
+            var winRateData = new
+            {
+                labels = _history.Select(h => h.Generation).ToArray(),
+                values = _history.Select(h => h.WinRate * 100).ToArray()
+            };
+            await JS.InvokeVoidAsync("dashboardCharts.initWinRateChart", "winRateChart", winRateData);
+
+            // Fitness Distribution Chart
+            var population = TrainingService.CurrentPopulation;
+            var distributionData = GetFitnessDistribution(population);
+            await JS.InvokeVoidAsync("dashboardCharts.initDistributionChart", "fitnessDistributionChart", distributionData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing charts: {ex.Message}");
+        }
+    }
+
+    private async void HandleGenerationComplete(DashboardGenerationStats stats)
+    {
+        await InvokeAsync(async () =>
+        {
+            _history.Add(stats);
+
+            try
+            {
+                // Update fitness chart
+                await JS.InvokeVoidAsync("dashboardCharts.addDataPoint", "fitnessOverTimeChart", new
+                {
+                    generation = stats.Generation,
+                    best = stats.BestFitness,
+                    average = stats.AverageFitness,
+                    worst = stats.WorstFitness
+                });
+
+                // Update win rate chart
+                await JS.InvokeVoidAsync("dashboardCharts.addWinRatePoint", "winRateChart", new
+                {
+                    generation = stats.Generation,
+                    value = stats.WinRate * 100
+                });
+
+                // Update distribution chart
+                var population = TrainingService.CurrentPopulation;
+                var distributionData = GetFitnessDistribution(population);
+                await JS.InvokeVoidAsync("dashboardCharts.updateDistributionChart", "fitnessDistributionChart", distributionData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating charts: {ex.Message}");
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private object GetFitnessDistribution(IReadOnlyList<GenomeSummary> population)
+    {
+        if (!population.Any())
+        {
+            return new { labels = Array.Empty<string>(), values = Array.Empty<int>() };
+        }
+
+        var min = population.Min(g => g.Fitness);
+        var max = population.Max(g => g.Fitness);
+        var range = max - min;
+        var bucketCount = 10;
+        var bucketSize = range / bucketCount;
+
+        var buckets = new int[bucketCount];
+        var labels = new string[bucketCount];
+
+        for (int i = 0; i < bucketCount; i++)
+        {
+            var lower = min + i * bucketSize;
+            var upper = min + (i + 1) * bucketSize;
+            labels[i] = $"{lower:F1}-{upper:F1}";
+            buckets[i] = population.Count(g => g.Fitness >= lower && g.Fitness < upper);
+        }
+
+        // Include max value in last bucket
+        buckets[bucketCount - 1] += population.Count(g => g.Fitness == max);
+
+        return new { labels, values = buckets };
+    }
+
+    private List<StageTimelineItem> GetStageTimeline()
+    {
+        var currentStage = TrainingService.CurrentStage;
+        var currentStageIndex = GetStageIndex(currentStage);
+
+        var stages = new[]
+        {
+            "Stage 1: Basic Training",
+            "Stage 2: Resource Management",
+            "Stage 3: Combat Basics",
+            "Stage 4: Advanced Strategy",
+            "Stage 5: Full Game"
+        };
+
+        var result = new List<StageTimelineItem>();
+
+        for (int i = 0; i < stages.Length; i++)
+        {
+            var stageName = stages[i];
+            var isCompleted = i < currentStageIndex;
+            var isCurrent = i == currentStageIndex;
+
+            int? startGen = null;
+            int? endGen = null;
+
+            // Find generation ranges for completed/current stages
+            var stageHistory = _history.Where(h => h.Stage.Contains($"Stage {i + 1}")).ToList();
+            if (stageHistory.Any())
+            {
+                startGen = stageHistory.Min(h => h.Generation);
+                if (isCompleted)
+                {
+                    endGen = stageHistory.Max(h => h.Generation);
+                }
+            }
+
+            result.Add(new StageTimelineItem
+            {
+                Name = stageName,
+                IsCompleted = isCompleted,
+                IsCurrent = isCurrent,
+                StartGeneration = startGen,
+                EndGeneration = endGen
+            });
+        }
+
+        return result;
+    }
+
+    private int GetStageIndex(string stage)
+    {
+        if (stage.Contains("1")) return 0;
+        if (stage.Contains("2")) return 1;
+        if (stage.Contains("3")) return 2;
+        if (stage.Contains("4")) return 3;
+        if (stage.Contains("5")) return 4;
+        return 0;
+    }
+
+    public void Dispose()
+    {
+        TrainingService.OnGenerationComplete -= HandleGenerationComplete;
+    }
+
+    private class StageTimelineItem
+    {
+        public string Name { get; set; } = "";
+        public bool IsCompleted { get; set; }
+        public bool IsCurrent { get; set; }
+        public int? StartGeneration { get; set; }
+        public int? EndGeneration { get; set; }
+    }
+}
+
+<style>
+    .charts-page {
+        padding: 1.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .chart-card {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .chart-card.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .chart-legend {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .legend-item .dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .dot.best { background: #22c55e; }
+    .dot.avg { background: #6366f1; }
+    .dot.worst { background: #ef4444; }
+
+    .chart-body {
+        height: 250px;
+        position: relative;
+    }
+
+    .chart-body.timeline {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        position: relative;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 2rem;
+        bottom: -0.75rem;
+        width: 2px;
+        background: var(--surface-border);
+    }
+
+    .timeline-item:last-child::before {
+        display: none;
+    }
+
+    .timeline-marker {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: var(--surface-border);
+        flex-shrink: 0;
+        z-index: 1;
+    }
+
+    .timeline-item.completed .timeline-marker {
+        background: #22c55e;
+    }
+
+    .timeline-item.current .timeline-marker {
+        background: var(--accent-color);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+    }
+
+    .timeline-item.completed::before {
+        background: #22c55e;
+    }
+
+    .timeline-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .stage-name {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .timeline-item.pending .stage-name {
+        color: var(--text-muted);
+    }
+
+    .stage-info {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    @@media (max-width: 768px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card.full-width {
+            grid-column: auto;
+        }
+    }
+</style>

@@ -1,0 +1,95 @@
+@namespace TzarBot.Dashboard.Components
+
+<span class="status-badge @GetStatusClass()">
+    <span class="status-dot"></span>
+    <span class="status-text">@GetStatusText()</span>
+</span>
+
+@code {
+    [Parameter]
+    public TrainingStatus Status { get; set; }
+
+    private string GetStatusClass() => Status switch
+    {
+        TrainingStatus.Running => "status-running",
+        TrainingStatus.Paused => "status-paused",
+        TrainingStatus.Stopped => "status-stopped",
+        TrainingStatus.Error => "status-error",
+        _ => "status-unknown"
+    };
+
+    private string GetStatusText() => Status switch
+    {
+        TrainingStatus.Running => "Running",
+        TrainingStatus.Paused => "Paused",
+        TrainingStatus.Stopped => "Stopped",
+        TrainingStatus.Error => "Error",
+        _ => "Unknown"
+    };
+}
+
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .status-running {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .status-running .status-dot {
+        background: #22c55e;
+    }
+
+    .status-paused {
+        background: rgba(234, 179, 8, 0.2);
+        color: #eab308;
+    }
+
+    .status-paused .status-dot {
+        background: #eab308;
+        animation: none;
+    }
+
+    .status-stopped {
+        background: rgba(107, 114, 128, 0.2);
+        color: #6b7280;
+    }
+
+    .status-stopped .status-dot {
+        background: #6b7280;
+        animation: none;
+    }
+
+    .status-error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .status-error .status-dot {
+        background: #ef4444;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+</style>

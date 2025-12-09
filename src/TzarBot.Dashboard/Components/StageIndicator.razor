@@ -1,0 +1,118 @@
+@namespace TzarBot.Dashboard.Components
+
+<div class="stage-indicator">
+    <div class="stage-header">
+        <span class="stage-label">Training Stage</span>
+        <span class="stage-progress">@CurrentStageIndex / @TotalStages</span>
+    </div>
+    <div class="stage-track">
+        @for (int i = 1; i <= TotalStages; i++)
+        {
+            var idx = i;
+            <div class="stage-step @GetStepClass(idx)">
+                <span class="step-number">@idx</span>
+            </div>
+            @if (i < TotalStages)
+            {
+                <div class="stage-connector @(idx < CurrentStageIndex ? "completed" : "")"></div>
+            }
+        }
+    </div>
+    <div class="stage-name">@StageName</div>
+</div>
+
+@code {
+    [Parameter]
+    public string StageName { get; set; } = "Stage 1";
+
+    [Parameter]
+    public int CurrentStageIndex { get; set; } = 1;
+
+    [Parameter]
+    public int TotalStages { get; set; } = 5;
+
+    private string GetStepClass(int step)
+    {
+        if (step < CurrentStageIndex) return "completed";
+        if (step == CurrentStageIndex) return "current";
+        return "pending";
+    }
+}
+
+<style>
+    .stage-indicator {
+        padding: 1rem;
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+    }
+
+    .stage-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .stage-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .stage-progress {
+        font-size: 0.85rem;
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+
+    .stage-track {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-bottom: 0.75rem;
+    }
+
+    .stage-step {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .stage-step.completed {
+        background: var(--accent-color);
+        color: #000;
+    }
+
+    .stage-step.current {
+        background: var(--accent-color);
+        color: #000;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+    }
+
+    .stage-step.pending {
+        background: var(--surface-elevated);
+        color: var(--text-muted);
+    }
+
+    .stage-connector {
+        flex: 1;
+        height: 2px;
+        background: var(--surface-elevated);
+        transition: background 0.3s ease;
+    }
+
+    .stage-connector.completed {
+        background: var(--accent-color);
+    }
+
+    .stage-name {
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+</style>

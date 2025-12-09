@@ -1,6 +1,6 @@
 # TzarBot Environment Settings
 
-**Ostatnia aktualizacja:** 2025-12-07
+**Ostatnia aktualizacja:** 2025-12-08
 
 > Ten plik zawiera wszystkie ustawienia srodowiskowe projektu TzarBot.
 > WAZNE: Aktualizuj ten plik przy kazdej zmianie konfiguracji!
@@ -100,7 +100,50 @@ Konfiguracja DEV (do replikacji na workerach):
 | Component | Path | Notes |
 |-----------|------|-------|
 | Tzar Game | C:\Program Files\Tzared\Tzared.exe | Windowed mode enabled |
-| Bot Working Dir | TBD | |
+| Bot Working Dir | C:\TzarBot | Working directory for bot |
+| Genomes Dir | C:\TzarBot\Genomes | Genome files for evaluation |
+| Results Dir | C:\TzarBot\Results | Evaluation results |
+| Logs Dir | C:\TzarBot\Logs | Bot logs |
+| Startup Script | C:\TzarBot\startup.ps1 | Auto-start script |
+
+---
+
+## VM Template Configuration
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Template Path | C:\VMs\TzarBot-Template.vhdx | Base VHDX for workers |
+| Workers Path | C:\VMs\Workers | Directory for worker VHDs |
+| Clean Checkpoint | "Clean" | Checkpoint name for reset |
+| VM Prefix | TzarBot-Worker- | Worker VM naming convention |
+
+### Worker VM Naming Convention
+
+| Pattern | Example | IP Range |
+|---------|---------|----------|
+| TzarBot-Worker-{N} | TzarBot-Worker-0 | 192.168.100.100+N |
+
+---
+
+## Orchestrator Configuration
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Default Worker Count | 3 | Respects 10GB RAM limit |
+| Worker RAM | 2 GB each | 3 x 2GB = 6GB pool |
+| Evaluation Timeout | 10 minutes | Per genome |
+| Max Parallel | 3 | One per worker |
+| Auto-Recovery | Enabled | Restarts crashed workers |
+
+---
+
+## Communication Protocol (Phase 4)
+
+| Protocol | Use Case | Notes |
+|----------|----------|-------|
+| PowerShell Direct | File transfer, commands | Uses Hyper-V integration |
+| File-based signaling | Genome load trigger | C:\TzarBot\Genomes\load_genome.trigger |
+| JSON result files | Evaluation results | C:\TzarBot\Results\evaluation_result.json |
 
 ---
 
@@ -141,3 +184,4 @@ Konfiguracja DEV (do replikacji na workerach):
 | Date | Change | By |
 |------|--------|-----|
 | 2025-12-07 | Initial file created | Claude |
+| 2025-12-08 | Phase 4 implementation: VM paths, template config, orchestrator settings | Claude |

@@ -1,0 +1,445 @@
+@page "/population"
+@inject ITrainingStateService TrainingService
+@implements IDisposable
+
+<PageTitle>Population - TzarBot Dashboard</PageTitle>
+
+<div class="population-page">
+    <div class="page-header">
+        <h1>Current Population</h1>
+        <div class="header-stats">
+            <span class="stat">Size: @_population.Count genomes</span>
+            <span class="stat">|</span>
+            <span class="stat">Generation: @TrainingService.CurrentGeneration</span>
+        </div>
+    </div>
+
+    <div class="population-grid">
+        <!-- Genome List -->
+        <div class="genome-list">
+            <div class="list-header">
+                <span class="sort-label">Sorted by Fitness (descending)</span>
+            </div>
+            <div class="list-content">
+                @if (!_population.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <span>No genomes in population</span>
+                    </div>
+                }
+                else
+                {
+                    var rank = 0;
+                    @foreach (var genome in _population)
+                    {
+                        rank++;
+                        <div class="genome-card @(genome.Id == _selectedGenome?.Id ? "selected" : "") @(rank <= 5 ? "elite" : "")"
+                             @onclick="() => SelectGenome(genome)">
+                            <div class="genome-rank">
+                                @if (rank == 1)
+                                {
+                                    <i class="bi bi-trophy-fill"></i>
+                                }
+                                else
+                                {
+                                    <span>#@rank</span>
+                                }
+                            </div>
+                            <div class="genome-info">
+                                <span class="genome-id">@genome.ShortId</span>
+                                <span class="genome-gen">Gen @genome.Generation</span>
+                            </div>
+                            <div class="genome-fitness">
+                                <span class="fitness-value">@genome.Fitness.ToString("F2")</span>
+                                <span class="fitness-label">fitness</span>
+                            </div>
+                            <div class="genome-stats">
+                                <span class="win-rate">@((genome.WinRate * 100).ToString("F0"))% WR</span>
+                                <span class="elo">@genome.EloRating ELO</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Genome Details -->
+        <div class="genome-details">
+            @if (_selectedGenome != null)
+            {
+                <div class="details-header">
+                    <h3>Genome Details</h3>
+                    <span class="genome-full-id">@_selectedGenome.Id</span>
+                </div>
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <span class="detail-label">Fitness Score</span>
+                        <span class="detail-value fitness">@_selectedGenome.Fitness.ToString("F3")</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">ELO Rating</span>
+                        <span class="detail-value">@_selectedGenome.EloRating</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Games Played</span>
+                        <span class="detail-value">@_selectedGenome.GamesPlayed</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Wins</span>
+                        <span class="detail-value">@_selectedGenome.Wins</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Win Rate</span>
+                        <span class="detail-value">@((_selectedGenome.WinRate * 100).ToString("F1"))%</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Created Generation</span>
+                        <span class="detail-value">@_selectedGenome.Generation</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Hidden Layers</span>
+                        <span class="detail-value">@_selectedGenome.HiddenLayerCount</span>
+                    </div>
+                    <div class="detail-card">
+                        <span class="detail-label">Parameters</span>
+                        <span class="detail-value">@_selectedGenome.ParameterCount.ToString("N0")</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="no-selection">
+                    <i class="bi bi-cursor"></i>
+                    <span>Select a genome to view details</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Population Stats -->
+    <div class="population-stats">
+        <h3>Population Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Best Fitness</span>
+                <span class="stat-value best">@(_population.Any() ? _population.Max(g => g.Fitness).ToString("F2") : "N/A")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Average Fitness</span>
+                <span class="stat-value">@(_population.Any() ? _population.Average(g => g.Fitness).ToString("F2") : "N/A")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Worst Fitness</span>
+                <span class="stat-value worst">@(_population.Any() ? _population.Min(g => g.Fitness).ToString("F2") : "N/A")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Avg ELO</span>
+                <span class="stat-value">@(_population.Any() ? _population.Average(g => g.EloRating).ToString("F0") : "N/A")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<GenomeSummary> _population = new();
+    private GenomeSummary? _selectedGenome;
+
+    protected override void OnInitialized()
+    {
+        RefreshPopulation();
+        TrainingService.OnGenerationComplete += HandleGenerationComplete;
+    }
+
+    private void RefreshPopulation()
+    {
+        _population = TrainingService.CurrentPopulation.ToList();
+    }
+
+    private async void HandleGenerationComplete(DashboardGenerationStats stats)
+    {
+        await InvokeAsync(() =>
+        {
+            RefreshPopulation();
+            // Update selected genome if still in population
+            if (_selectedGenome != null)
+            {
+                _selectedGenome = _population.FirstOrDefault(g => g.Id == _selectedGenome.Id);
+            }
+            StateHasChanged();
+        });
+    }
+
+    private void SelectGenome(GenomeSummary genome)
+    {
+        _selectedGenome = _selectedGenome?.Id == genome.Id ? null : genome;
+    }
+
+    public void Dispose()
+    {
+        TrainingService.OnGenerationComplete -= HandleGenerationComplete;
+    }
+}
+
+<style>
+    .population-page {
+        padding: 1.5rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .population-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .genome-list {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .list-header {
+        padding: 0.75rem 1rem;
+        background: var(--surface-elevated);
+        border-bottom: 1px solid var(--surface-border);
+    }
+
+    .sort-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .list-content {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .empty-state,
+    .no-selection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: var(--text-muted);
+        gap: 0.5rem;
+    }
+
+    .empty-state i,
+    .no-selection i {
+        font-size: 2rem;
+    }
+
+    .genome-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--surface-border);
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .genome-card:hover {
+        background: var(--surface-hover);
+    }
+
+    .genome-card.selected {
+        background: var(--accent-bg);
+    }
+
+    .genome-card.elite {
+        border-left: 3px solid #22c55e;
+    }
+
+    .genome-rank {
+        width: 2.5rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .genome-rank .bi-trophy-fill {
+        color: #f59e0b;
+        font-size: 1.25rem;
+    }
+
+    .genome-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 100px;
+    }
+
+    .genome-id {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .genome-gen {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .genome-fitness {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        min-width: 80px;
+    }
+
+    .fitness-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #22c55e;
+    }
+
+    .fitness-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .genome-stats {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-left: auto;
+    }
+
+    .win-rate {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .elo {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .genome-details {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .details-header {
+        margin-bottom: 1rem;
+    }
+
+    .details-header h3 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .genome-full-id {
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        word-break: break-all;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .detail-card {
+        background: var(--surface-elevated);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .detail-label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .detail-value.fitness {
+        color: #22c55e;
+    }
+
+    .population-stats {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .population-stats h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .stat-value.best {
+        color: #22c55e;
+    }
+
+    .stat-value.worst {
+        color: #ef4444;
+    }
+
+    @@media (max-width: 1024px) {
+        .population-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>

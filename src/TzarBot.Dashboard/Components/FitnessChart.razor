@@ -1,0 +1,177 @@
+@namespace TzarBot.Dashboard.Components
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="fitness-chart-container">
+    <div class="chart-header">
+        <h3>@Title</h3>
+        <div class="chart-legend">
+            <span class="legend-item legend-best"><span class="dot"></span>Best</span>
+            <span class="legend-item legend-avg"><span class="dot"></span>Average</span>
+            <span class="legend-item legend-worst"><span class="dot"></span>Worst</span>
+        </div>
+    </div>
+    <div class="chart-wrapper">
+        <canvas id="@ChartId"></canvas>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string ChartId { get; set; } = "fitnessChart";
+
+    [Parameter]
+    public string Title { get; set; } = "Fitness Over Generations";
+
+    [Parameter]
+    public List<FitnessDataPoint> Data { get; set; } = new();
+
+    private bool _chartInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeChartAsync();
+        }
+    }
+
+    private async Task InitializeChartAsync()
+    {
+        try
+        {
+            var chartData = new
+            {
+                labels = Data.Select(d => d.Generation).ToArray(),
+                best = Data.Select(d => d.Best).ToArray(),
+                average = Data.Select(d => d.Average).ToArray(),
+                worst = Data.Select(d => d.Worst).ToArray()
+            };
+
+            await JS.InvokeVoidAsync("dashboardCharts.initFitnessChart", ChartId, chartData);
+            _chartInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing chart: {ex.Message}");
+        }
+    }
+
+    public async Task UpdateDataAsync(FitnessDataPoint newPoint)
+    {
+        Data.Add(newPoint);
+
+        if (_chartInitialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("dashboardCharts.addDataPoint", ChartId, new
+                {
+                    generation = newPoint.Generation,
+                    best = newPoint.Best,
+                    average = newPoint.Average,
+                    worst = newPoint.Worst
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating chart: {ex.Message}");
+            }
+        }
+    }
+
+    public async Task RefreshChartAsync()
+    {
+        if (_chartInitialized)
+        {
+            var chartData = new
+            {
+                labels = Data.Select(d => d.Generation).ToArray(),
+                best = Data.Select(d => d.Best).ToArray(),
+                average = Data.Select(d => d.Average).ToArray(),
+                worst = Data.Select(d => d.Worst).ToArray()
+            };
+
+            try
+            {
+                await JS.InvokeVoidAsync("dashboardCharts.updateChart", ChartId, chartData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error refreshing chart: {ex.Message}");
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_chartInitialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("dashboardCharts.destroyChart", ChartId);
+            }
+            catch
+            {
+                // Ignore errors on dispose
+            }
+        }
+    }
+}
+
+<style>
+    .fitness-chart-container {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .chart-legend {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .legend-item .dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .legend-best .dot {
+        background: #22c55e;
+    }
+
+    .legend-avg .dot {
+        background: #6366f1;
+    }
+
+    .legend-worst .dot {
+        background: #ef4444;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+    }
+</style>

@@ -1,0 +1,160 @@
+@namespace TzarBot.Dashboard.Components
+
+<div class="activity-feed">
+    <div class="feed-header">
+        <h3>Recent Activity</h3>
+    </div>
+    <div class="feed-content">
+        @if (Activities == null || !Activities.Any())
+        {
+            <div class="feed-empty">
+                <i class="bi bi-clock-history"></i>
+                <span>No recent activity</span>
+            </div>
+        }
+        else
+        {
+            @foreach (var activity in Activities.Take(MaxItems))
+            {
+                <div class="feed-item @GetLevelClass(activity.Level)">
+                    <div class="item-icon">
+                        <i class="bi @GetLevelIcon(activity.Level)"></i>
+                    </div>
+                    <div class="item-content">
+                        <span class="item-message">@activity.Message</span>
+                        <span class="item-time">@FormatTime(activity.Timestamp)</span>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<ActivityLogEntry>? Activities { get; set; }
+
+    [Parameter]
+    public int MaxItems { get; set; } = 10;
+
+    private static string GetLevelClass(ActivityLevel level) => level switch
+    {
+        ActivityLevel.Success => "level-success",
+        ActivityLevel.Warning => "level-warning",
+        ActivityLevel.Error => "level-error",
+        _ => "level-info"
+    };
+
+    private static string GetLevelIcon(ActivityLevel level) => level switch
+    {
+        ActivityLevel.Success => "bi-check-circle-fill",
+        ActivityLevel.Warning => "bi-exclamation-triangle-fill",
+        ActivityLevel.Error => "bi-x-circle-fill",
+        _ => "bi-info-circle-fill"
+    };
+
+    private static string FormatTime(DateTime timestamp)
+    {
+        var diff = DateTime.UtcNow - timestamp;
+        if (diff.TotalSeconds < 60) return "Just now";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return timestamp.ToString("MMM dd HH:mm");
+    }
+}
+
+<style>
+    .activity-feed {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .feed-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--surface-border);
+    }
+
+    .feed-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .feed-content {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .feed-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        gap: 0.5rem;
+    }
+
+    .feed-empty i {
+        font-size: 2rem;
+    }
+
+    .feed-item {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--surface-border);
+        transition: background 0.2s ease;
+    }
+
+    .feed-item:hover {
+        background: var(--surface-hover);
+    }
+
+    .feed-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-icon {
+        flex-shrink: 0;
+        font-size: 0.9rem;
+    }
+
+    .level-info .item-icon {
+        color: #6366f1;
+    }
+
+    .level-success .item-icon {
+        color: #22c55e;
+    }
+
+    .level-warning .item-icon {
+        color: #eab308;
+    }
+
+    .level-error .item-icon {
+        color: #ef4444;
+    }
+
+    .item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-message {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .item-time {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+</style>

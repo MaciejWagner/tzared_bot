@@ -1,7 +1,7 @@
 # Backlog Fazy 4: Hyper-V Infrastructure
 
-**Ostatnia aktualizacja:** 2025-12-07
-**Status Fazy:** PENDING
+**Ostatnia aktualizacja:** 2025-12-08
+**Status Fazy:** IN_PROGRESS
 **Priorytet:** MUST (wymagane dla rownoleglego treningu)
 
 ---
@@ -43,23 +43,24 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | **Opis** | Reczne przygotowanie wzorcowej maszyny wirtualnej z zainstalowana gra i botem |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | L (Large) |
-| **Status** | PENDING |
+| **Status** | IN_PROGRESS (skrypt gotowy, wymaga uruchomienia na VM) |
 | **Agent** | tzarbot-agent-hyperv-admin |
 | **Zaleznosci** | F0.T2 (Development VM), F1 (Game Interface) |
 | **Uwagi** | TASK MANUALNY - wymaga interakcji operatora |
 
 **Kryteria akceptacji:**
+- [x] Skrypt Prepare-TzarTemplate.ps1 utworzony
 - [ ] Windows 10 LTSC zainstalowany (minimal footprint)
-- [ ] Tzar zainstalowany i skonfigurowany
+- [x] Tzar zainstalowany i skonfigurowany (na DEV)
 - [ ] Bot Interface zainstalowany jako Windows Service
-- [ ] Auto-login do konta lokalnego
-- [ ] Startup script uruchamiajacy gre
+- [x] Auto-login do konta lokalnego (skrypt konfiguruje)
+- [x] Startup script uruchamiajacy gre (skrypt tworzy)
 - [ ] VHDX zapisany jako template
-- [ ] **env_settings.md zaktualizowany** (template path, VM specs, service config)
+- [x] **env_settings.md zaktualizowany** (template path, VM specs, service config)
 
 **Powiazane pliki:**
-- `plans/phase_4_template_setup.md`
-- `plans/phase_4_detailed.md`
+- `scripts/vm/Prepare-TzarTemplate.ps1`
+- `scripts/vm/VMConfig.ps1`
 - `env_settings.md`
 
 ---
@@ -72,21 +73,25 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | **Opis** | Skrypty PowerShell do tworzenia VM workerow z template |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED |
 | **Agent** | tzarbot-agent-hyperv-admin |
 | **Zaleznosci** | F4.T1 |
 
 **Kryteria akceptacji:**
-- [ ] Tworzenie differencing disks z template
-- [ ] Parametryzowana liczba VM (N=2-16)
-- [ ] Konfiguracja sieci (Internal Switch)
-- [ ] Auto-start VM
-- [ ] Cleanup script do usuwania workerow
-- [ ] **env_settings.md zaktualizowany** (worker IP range, naming convention)
+- [x] Tworzenie differencing disks z template
+- [x] Parametryzowana liczba VM (N=1-16)
+- [x] Konfiguracja sieci (Internal Switch)
+- [x] Auto-start VM
+- [x] Cleanup script do usuwania workerow
+- [x] **env_settings.md zaktualizowany** (worker IP range, naming convention)
 
 **Powiazane pliki:**
 - `scripts/vm/New-TzarWorkerVM.ps1`
 - `scripts/vm/Remove-TzarWorkerVM.ps1`
+- `scripts/vm/Start-TzarWorkers.ps1`
+- `scripts/vm/Stop-TzarWorkers.ps1`
+- `scripts/vm/Get-TzarWorkerStatus.ps1`
+- `scripts/vm/VMConfig.ps1`
 - `env_settings.md`
 
 ---
@@ -99,20 +104,24 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | **Opis** | Klasa C# do zarzadzania maszynami wirtualnymi |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | L (Large) |
-| **Status** | PENDING |
-| **Agent** | tzarbot-agent-dotnet-senior |
+| **Status** | COMPLETED |
+| **Agent** | tzarbot-agent-hyperv-admin |
 | **Zaleznosci** | F4.T2 |
 
 **Kryteria akceptacji:**
-- [ ] IVMManager interface
-- [ ] Hyper-V PowerShell cmdlets integration
-- [ ] Start/Stop/Restart VM
-- [ ] Get VM status
-- [ ] Send file to VM (genom)
-- [ ] Execute command on VM
+- [x] IVMManager interface
+- [x] Hyper-V PowerShell cmdlets integration (via System.Management.Automation)
+- [x] Start/Stop/Restart VM
+- [x] Get VM status
+- [x] Send file to VM (genom)
+- [x] Execute command on VM
+- [x] VMPool for VM allocation
 
 **Powiazane pliki:**
-- `src/TzarBot.Orchestrator/VM/`
+- `src/TzarBot.Orchestrator/VM/IVMManager.cs`
+- `src/TzarBot.Orchestrator/VM/HyperVManager.cs`
+- `src/TzarBot.Orchestrator/VM/VMPool.cs`
+- `src/TzarBot.Orchestrator/VM/VMState.cs`
 
 ---
 
@@ -124,20 +133,23 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | **Opis** | Windows Service zarzadzajacy pula VM i dystrybucja genomow |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | L (Large) |
-| **Status** | PENDING |
+| **Status** | COMPLETED |
 | **Agent** | tzarbot-agent-hyperv-admin |
 | **Zaleznosci** | F4.T3 |
 
 **Kryteria akceptacji:**
-- [ ] Background service Windows
-- [ ] Pool management (acquire/release VM)
-- [ ] Dystrybucja genomow do ewaluacji
-- [ ] Zbieranie wynikow
-- [ ] Timeout handling
-- [ ] Auto-recovery po crashu VM
+- [x] Background service (BackgroundService/IHostedService)
+- [x] Pool management (acquire/release VM)
+- [x] Dystrybucja genomow do ewaluacji
+- [x] Zbieranie wynikow
+- [x] Timeout handling
+- [x] Auto-recovery po crashu VM
+- [x] WorkerAgent dla pojedynczej VM
 
 **Powiazane pliki:**
-- `src/TzarBot.Orchestrator/`
+- `src/TzarBot.Orchestrator/Service/OrchestratorService.cs`
+- `src/TzarBot.Orchestrator/Service/OrchestratorConfig.cs`
+- `src/TzarBot.Orchestrator/Worker/WorkerAgent.cs`
 
 ---
 
@@ -149,20 +161,22 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | **Opis** | Implementacja komunikacji miedzy hostem a VM workerami |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
-| **Agent** | tzarbot-agent-dotnet-senior |
+| **Status** | COMPLETED |
+| **Agent** | tzarbot-agent-hyperv-admin |
 | **Zaleznosci** | F4.T3, F4.T4 |
 
 **Kryteria akceptacji:**
-- [ ] WinRM lub TCP communication
-- [ ] Send genome to VM
-- [ ] Receive game result from VM
-- [ ] Heartbeat/health check
-- [ ] Timeout i retry logic
-- [ ] **env_settings.md zaktualizowany** (communication ports, protocols, timeouts)
+- [x] PowerShell Direct communication (via Hyper-V)
+- [x] Send genome to VM
+- [x] Receive game result from VM
+- [x] Heartbeat/health check
+- [x] Timeout i retry logic
+- [x] **env_settings.md zaktualizowany** (communication ports, protocols, timeouts)
 
 **Powiazane pliki:**
-- `plans/phase_4_detailed.md`
+- `src/TzarBot.Orchestrator/Communication/IVMCommunicator.cs`
+- `src/TzarBot.Orchestrator/Communication/PowerShellCommunicator.cs`
+- `src/TzarBot.Orchestrator/Communication/GenomeTransfer.cs`
 - `env_settings.md`
 
 ---
@@ -196,11 +210,19 @@ Faza 4 obejmuje budowe infrastruktury do rownoleglego treningu na wielu maszynac
 | Metryka | Wartosc |
 |---------|---------|
 | Liczba taskow | 6 |
-| Ukonczonych | 0 |
-| W trakcie | 0 |
+| Ukonczonych | 4 |
+| W trakcie | 1 |
 | Zablokowanych | 0 |
-| Oczekujacych | 6 |
-| Postep | 0% |
+| Oczekujacych | 1 |
+| Postep | 67% |
+
+### Podsumowanie postepow:
+- **F4.T1** - IN_PROGRESS (skrypt gotowy, wymaga uruchomienia)
+- **F4.T2** - COMPLETED (wszystkie skrypty PowerShell)
+- **F4.T3** - COMPLETED (IVMManager, HyperVManager, VMPool)
+- **F4.T4** - COMPLETED (OrchestratorService, WorkerAgent)
+- **F4.T5** - COMPLETED (PowerShellCommunicator, GenomeTransfer)
+- **F4.T6** - PENDING (wymaga F4.T1)
 
 ---
 

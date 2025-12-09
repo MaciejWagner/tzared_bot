@@ -1,0 +1,123 @@
+@namespace TzarBot.Dashboard.Components
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<span class="connection-status @GetConnectionClass()">
+    <i class="bi @GetConnectionIcon()"></i>
+    <span>@GetConnectionText()</span>
+</span>
+
+@code {
+    private HubConnection? _hubConnection;
+    private bool _isConnected;
+    private bool _isReconnecting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/traininghub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hubConnection.Reconnecting += _ =>
+        {
+            _isReconnecting = true;
+            _isConnected = false;
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        _hubConnection.Reconnected += _ =>
+        {
+            _isReconnecting = false;
+            _isConnected = true;
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        _hubConnection.Closed += _ =>
+        {
+            _isConnected = false;
+            _isReconnecting = false;
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        try
+        {
+            await _hubConnection.StartAsync();
+            await _hubConnection.InvokeAsync("JoinMonitoring");
+            _isConnected = true;
+        }
+        catch
+        {
+            _isConnected = false;
+        }
+    }
+
+    private string GetConnectionClass()
+    {
+        if (_isReconnecting) return "connection-reconnecting";
+        if (_isConnected) return "connection-connected";
+        return "connection-disconnected";
+    }
+
+    private string GetConnectionIcon()
+    {
+        if (_isReconnecting) return "bi-arrow-repeat";
+        if (_isConnected) return "bi-wifi";
+        return "bi-wifi-off";
+    }
+
+    private string GetConnectionText()
+    {
+        if (_isReconnecting) return "Reconnecting...";
+        if (_isConnected) return "Connected";
+        return "Disconnected";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}
+
+<style>
+    .connection-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .connection-connected {
+        color: #22c55e;
+    }
+
+    .connection-disconnected {
+        color: #ef4444;
+    }
+
+    .connection-reconnecting {
+        color: #eab308;
+    }
+
+    .connection-reconnecting i {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>

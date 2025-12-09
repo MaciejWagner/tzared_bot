@@ -111,15 +111,22 @@ $testResult = Invoke-Command -VMName "DEV" -Credential $cred -ScriptBlock {
         "--logger", "trx;LogFileName=TestResults_$timestamp.trx"
     )
 
+    # Always exclude RequiresInteractiveSession tests (DXGI Desktop Duplication requires console)
+    $baseFilter = "Category!=RequiresInteractiveSession"
+
     if ($Category -ne "All") {
-        $filter = switch ($Category) {
+        $categoryFilter = switch ($Category) {
             "Phase1" { "FullyQualifiedName~Phase1" }
             "Phase2" { "FullyQualifiedName~Phase2|FullyQualifiedName~NeuralNetwork" }
             default { $null }
         }
-        if ($filter) {
-            $testArgs += "--filter", $filter
+        if ($categoryFilter) {
+            $testArgs += "--filter", "($categoryFilter)&($baseFilter)"
+        } else {
+            $testArgs += "--filter", $baseFilter
         }
+    } else {
+        $testArgs += "--filter", $baseFilter
     }
 
     Write-Host "Running: dotnet $($testArgs -join ' ')"

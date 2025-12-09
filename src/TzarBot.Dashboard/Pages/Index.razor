@@ -1,0 +1,299 @@
+@page "/"
+@inject ITrainingStateService TrainingService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>TzarBot Dashboard</PageTitle>
+
+<div class="dashboard-page">
+    <!-- Status Panel -->
+    <section class="status-section">
+        <div class="section-header">
+            <h2>Training Status</h2>
+            <div class="control-buttons">
+                @if (TrainingService.Status == TrainingStatus.Running)
+                {
+                    <button class="btn btn-warning" @onclick="PauseTraining">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                }
+                else if (TrainingService.Status == TrainingStatus.Paused)
+                {
+                    <button class="btn btn-success" @onclick="ResumeTraining">
+                        <i class="bi bi-play-fill"></i> Resume
+                    </button>
+                }
+                <button class="btn btn-secondary" @onclick="SaveCheckpoint">
+                    <i class="bi bi-save"></i> Save Checkpoint
+                </button>
+            </div>
+        </div>
+
+        <div class="status-grid">
+            <StatCard
+                Label="Status"
+                Value="@TrainingService.Status.ToString()"
+                Icon="bi-activity" />
+            <StatCard
+                Label="Generation"
+                Value="@TrainingService.CurrentGeneration.ToString("N0")"
+                Icon="bi-collection" />
+            <StatCard
+                Label="Best Fitness"
+                Value="@TrainingService.BestFitness.ToString("F2")"
+                Icon="bi-trophy"
+                Trend="@_bestFitnessTrend"
+                TrendPositive="@_isBestFitnessImproving" />
+            <StatCard
+                Label="Avg Fitness"
+                Value="@TrainingService.AverageFitness.ToString("F2")"
+                Icon="bi-bar-chart" />
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <StatCard
+                Label="Population"
+                Value="@TrainingService.PopulationSize.ToString()"
+                Icon="bi-people-fill"
+                Compact="true" />
+            <StatCard
+                Label="Games Played"
+                Value="@TrainingService.TotalGamesPlayed.ToString("N0")"
+                Icon="bi-controller"
+                Compact="true" />
+            <StatCard
+                Label="Win Rate"
+                Value="@($"{(TrainingService.WinRate * 100):F1}%")"
+                Icon="bi-percent"
+                Compact="true" />
+            <StatCard
+                Label="Training Time"
+                Value="@FormatDuration(TrainingService.TrainingStartedAt)"
+                Icon="bi-clock-history"
+                Compact="true" />
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+        <!-- Chart Section -->
+        <section class="chart-section">
+            <FitnessChart @ref="_fitnessChart"
+                          ChartId="mainFitnessChart"
+                          Title="Fitness Progress"
+                          Data="@_fitnessData" />
+        </section>
+
+        <!-- Side Panel -->
+        <aside class="side-panel">
+            <StageIndicator
+                StageName="@TrainingService.CurrentStage"
+                CurrentStageIndex="@GetCurrentStageIndex()"
+                TotalStages="5" />
+
+            <ActivityFeed Activities="@TrainingService.RecentActivity" MaxItems="8" />
+        </aside>
+    </div>
+</div>
+
+@code {
+    private FitnessChart? _fitnessChart;
+    private List<FitnessDataPoint> _fitnessData = new();
+    private string _bestFitnessTrend = "";
+    private bool _isBestFitnessImproving;
+    private float _previousBestFitness;
+
+    protected override void OnInitialized()
+    {
+        TrainingService.OnGenerationComplete += HandleGenerationComplete;
+        TrainingService.OnStatusChanged += HandleStatusChanged;
+
+        // Load initial data
+        LoadHistoricalData();
+    }
+
+    private void LoadHistoricalData()
+    {
+        _fitnessData = TrainingService.GenerationHistory
+            .Select(g => new FitnessDataPoint
+            {
+                Generation = g.Generation,
+                Best = g.BestFitness,
+                Average = g.AverageFitness,
+                Worst = g.WorstFitness
+            })
+            .ToList();
+
+        if (_fitnessData.Any())
+        {
+            _previousBestFitness = _fitnessData.Last().Best;
+        }
+    }
+
+    private async void HandleGenerationComplete(DashboardGenerationStats stats)
+    {
+        await InvokeAsync(async () =>
+        {
+            // Update trend
+            var improvement = stats.BestFitness - _previousBestFitness;
+            _isBestFitnessImproving = improvement >= 0;
+            _bestFitnessTrend = improvement >= 0 ? $"+{improvement:F2}" : $"{improvement:F2}";
+            _previousBestFitness = stats.BestFitness;
+
+            // Update chart
+            var newPoint = new FitnessDataPoint
+            {
+                Generation = stats.Generation,
+                Best = stats.BestFitness,
+                Average = stats.AverageFitness,
+                Worst = stats.WorstFitness
+            };
+
+            if (_fitnessChart != null)
+            {
+                await _fitnessChart.UpdateDataAsync(newPoint);
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private async void HandleStatusChanged(TrainingStatus status)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PauseTraining()
+    {
+        await TrainingService.PauseAsync();
+    }
+
+    private async Task ResumeTraining()
+    {
+        await TrainingService.ResumeAsync();
+    }
+
+    private async Task SaveCheckpoint()
+    {
+        await TrainingService.SaveCheckpointAsync();
+    }
+
+    private int GetCurrentStageIndex()
+    {
+        var stage = TrainingService.CurrentStage;
+        if (stage.Contains("1")) return 1;
+        if (stage.Contains("2")) return 2;
+        if (stage.Contains("3")) return 3;
+        if (stage.Contains("4")) return 4;
+        if (stage.Contains("5")) return 5;
+        return 1;
+    }
+
+    private static string FormatDuration(DateTime? startTime)
+    {
+        if (startTime == null) return "0:00:00";
+        var duration = DateTime.UtcNow - startTime.Value;
+        return $"{(int)duration.TotalHours}:{duration.Minutes:D2}:{duration.Seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        TrainingService.OnGenerationComplete -= HandleGenerationComplete;
+        TrainingService.OnStatusChanged -= HandleStatusChanged;
+    }
+}
+
+<style>
+    .dashboard-page {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+
+    .control-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .control-buttons .btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-warning {
+        background: rgba(234, 179, 8, 0.2);
+        color: #eab308;
+    }
+
+    .btn-warning:hover {
+        background: rgba(234, 179, 8, 0.3);
+    }
+
+    .btn-success {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .btn-success:hover {
+        background: rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--surface-elevated);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        background: var(--surface-hover);
+    }
+
+    .status-grid,
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 1.5rem;
+    }
+
+    .side-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

@@ -15,14 +15,22 @@ $Script:VMConfig = @{
     BaseIPAddress     = "192.168.100"  # Workers will be .100, .101, etc.
 
     # VM Resources
-    MemoryStartupMB   = 4096
-    MemoryMinMB       = 2048
-    MemoryMaxMB       = 8192
+    # IMPORTANT: 10GB RAM HARD LIMIT for all VMs (DEV=4GB, Workers=6GB)
+    # With 3 workers at 2GB each = 6GB total for workers
+    MemoryStartupMB   = 2048    # 2GB per worker (changed from 4GB to respect limit)
+    MemoryMinMB       = 1024    # 1GB minimum
+    MemoryMaxMB       = 3072    # 3GB max to allow dynamic growth
     ProcessorCount    = 2
 
-    # Defaults
-    DefaultWorkerCount = 8
-    MaxWorkerCount     = 16
+    # Defaults - respecting 10GB RAM limit
+    # DEV (4GB) + 3 workers (3x2GB=6GB) = 10GB
+    DefaultWorkerCount = 3
+    MaxWorkerCount     = 6      # Maximum if each worker uses 1GB
+
+    # Resource Limits
+    TotalRAMLimitGB    = 10     # HARD LIMIT
+    DevVMRAMGB         = 4      # Reserved for DEV VM
+    WorkerPoolRAMGB    = 6      # Available for workers
 
     # Timeouts
     BootTimeoutSeconds = 120

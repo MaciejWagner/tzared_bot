@@ -1,0 +1,353 @@
+@page "/generations"
+@inject ITrainingStateService TrainingService
+@implements IDisposable
+
+<PageTitle>Generations - TzarBot Dashboard</PageTitle>
+
+<div class="generations-page">
+    <div class="page-header">
+        <h1>Generation History</h1>
+        <div class="header-stats">
+            <span class="stat">Total: @_generations.Count generations</span>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Gen</th>
+                    <th>Stage</th>
+                    <th>Best Fitness</th>
+                    <th>Avg Fitness</th>
+                    <th>Win Rate</th>
+                    <th>Games</th>
+                    <th>Duration</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!_generations.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <span>No generations recorded yet</span>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var gen in _generations.OrderByDescending(g => g.Generation))
+                    {
+                        <tr class="@(gen.Generation == _selectedGeneration ? "selected" : "")"
+                            @onclick="() => SelectGeneration(gen.Generation)">
+                            <td class="gen-number">@gen.Generation</td>
+                            <td>
+                                <span class="stage-badge">@GetShortStage(gen.Stage)</span>
+                            </td>
+                            <td class="fitness best">@gen.BestFitness.ToString("F2")</td>
+                            <td class="fitness avg">@gen.AverageFitness.ToString("F2")</td>
+                            <td>
+                                <div class="win-rate">
+                                    <div class="win-bar" style="width: @(gen.WinRate * 100)%"></div>
+                                    <span>@((gen.WinRate * 100).ToString("F1"))%</span>
+                                </div>
+                            </td>
+                            <td>@gen.GamesPlayed</td>
+                            <td>@FormatDuration(gen.Duration)</td>
+                            <td class="timestamp">@gen.Timestamp.ToString("HH:mm:ss")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_selectedGeneration.HasValue && _selectedStats != null)
+    {
+        <div class="detail-panel">
+            <div class="detail-header">
+                <h3>Generation @_selectedGeneration Details</h3>
+                <button class="close-btn" @onclick="() => _selectedGeneration = null">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="label">Best Genome ID</span>
+                    <span class="value monospace">@_selectedStats.BestGenomeId.ToString("N")[..8]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Fitness Std Dev</span>
+                    <span class="value">@_selectedStats.FitnessStdDev.ToString("F3")</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Elite Count</span>
+                    <span class="value">@_selectedStats.EliteCount</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Improvement</span>
+                    <span class="value @(_selectedStats.Improvement >= 0 ? "positive" : "negative")">
+                        @(_selectedStats.Improvement >= 0 ? "+" : "")@_selectedStats.Improvement.ToString("F3")
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<DashboardGenerationStats> _generations = new();
+    private int? _selectedGeneration;
+    private DashboardGenerationStats? _selectedStats;
+
+    protected override void OnInitialized()
+    {
+        _generations = TrainingService.GenerationHistory.ToList();
+        TrainingService.OnGenerationComplete += HandleNewGeneration;
+    }
+
+    private async void HandleNewGeneration(DashboardGenerationStats stats)
+    {
+        await InvokeAsync(() =>
+        {
+            _generations.Add(stats);
+            StateHasChanged();
+        });
+    }
+
+    private void SelectGeneration(int generation)
+    {
+        if (_selectedGeneration == generation)
+        {
+            _selectedGeneration = null;
+            _selectedStats = null;
+        }
+        else
+        {
+            _selectedGeneration = generation;
+            _selectedStats = _generations.FirstOrDefault(g => g.Generation == generation);
+        }
+    }
+
+    private static string GetShortStage(string stage)
+    {
+        // Extract "Stage X" from full stage name
+        var match = System.Text.RegularExpressions.Regex.Match(stage, @"Stage \d");
+        return match.Success ? match.Value : stage;
+    }
+
+    private static string FormatDuration(TimeSpan duration)
+    {
+        if (duration.TotalMinutes < 1) return $"{duration.Seconds}s";
+        if (duration.TotalHours < 1) return $"{duration.Minutes}m {duration.Seconds}s";
+        return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+    }
+
+    public void Dispose()
+    {
+        TrainingService.OnGenerationComplete -= HandleNewGeneration;
+    }
+}
+
+<style>
+    .generations-page {
+        padding: 1.5rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .header-stats .stat {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .table-container {
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--surface-border);
+    }
+
+    .data-table th {
+        background: var(--surface-elevated);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .data-table tbody tr {
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--surface-hover);
+    }
+
+    .data-table tbody tr.selected {
+        background: var(--accent-bg);
+    }
+
+    .gen-number {
+        font-weight: 600;
+        color: var(--accent-color);
+    }
+
+    .stage-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background: var(--surface-elevated);
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .fitness.best {
+        color: #22c55e;
+        font-weight: 600;
+    }
+
+    .fitness.avg {
+        color: #6366f1;
+    }
+
+    .win-rate {
+        position: relative;
+        height: 1.25rem;
+        background: var(--surface-elevated);
+        border-radius: 0.25rem;
+        overflow: hidden;
+        min-width: 80px;
+    }
+
+    .win-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #86efac);
+        transition: width 0.3s ease;
+    }
+
+    .win-rate span {
+        position: relative;
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.25rem;
+    }
+
+    .timestamp {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem !important;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        display: block;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-panel {
+        margin-top: 1.5rem;
+        background: var(--surface-card);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .detail-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.25rem;
+        font-size: 1.25rem;
+    }
+
+    .close-btn:hover {
+        color: var(--text-primary);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .detail-item .label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .detail-item .value {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .detail-item .value.monospace {
+        font-family: monospace;
+    }
+
+    .detail-item .value.positive {
+        color: #22c55e;
+    }
+
+    .detail-item .value.negative {
+        color: #ef4444;
+    }
+</style>

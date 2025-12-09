@@ -39,7 +39,8 @@
       "Bash(tasklist:*)",
       "SlashCommand(/tzarbot-agent-automation-tester)",
       "Bash(Select-Object -First 50)",
-      "Bash(Start-Sleep -Seconds 15)"
+      "Bash(Start-Sleep -Seconds 15)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

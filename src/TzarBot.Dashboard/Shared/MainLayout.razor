@@ -1,0 +1,35 @@
+@inherits LayoutComponentBase
+@inject ITrainingStateService TrainingService
+
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <div class="header-brand">
+            <i class="bi bi-robot"></i>
+            <span class="brand-name">TzarBot</span>
+            <span class="brand-subtitle">Training Dashboard</span>
+        </div>
+        <div class="header-status">
+            <ConnectionStatus />
+        </div>
+    </header>
+
+    <div class="dashboard-body">
+        <nav class="dashboard-sidebar">
+            <NavMenu />
+        </nav>
+
+        <main class="dashboard-content">
+            @Body
+        </main>
+    </div>
+
+    <footer class="dashboard-footer">
+        <div class="footer-left">
+            <StatusBadge Status="@TrainingService.Status" />
+            <span class="footer-info">Generation: @TrainingService.CurrentGeneration</span>
+        </div>
+        <div class="footer-right">
+            <span class="footer-info">@TrainingService.CurrentStage</span>
+        </div>
+    </footer>
+</div>

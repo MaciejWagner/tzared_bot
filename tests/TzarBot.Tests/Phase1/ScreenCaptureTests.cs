@@ -8,7 +8,12 @@ namespace TzarBot.Tests.Phase1;
 /// <summary>
 /// Tests for the DXGI screen capture implementation.
 /// Note: These tests require a display and may not work in CI/CD environments.
+/// IMPORTANT: These tests require an interactive console session (not Session 0).
+/// DXGI Desktop Duplication requires a logged-in user with access to the desktop.
+/// Run these tests manually via vmconnect or skip in automated CI/CD pipelines.
 /// </summary>
+[Trait("Category", "RequiresInteractiveSession")]
+[Trait("Category", "RequiresGPU")]
 public class ScreenCaptureTests
 {
     [Fact]

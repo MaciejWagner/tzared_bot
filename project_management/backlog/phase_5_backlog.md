@@ -1,7 +1,7 @@
 # Backlog Fazy 5: Game State Detection
 
-**Ostatnia aktualizacja:** 2025-12-07
-**Status Fazy:** PENDING
+**Ostatnia aktualizacja:** 2025-12-08
+**Status Fazy:** COMPLETED
 **Priorytet:** MUST (wymagane dla funkcji fitness)
 
 ---
@@ -22,19 +22,20 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 | **Opis** | Narzedzie do recznego przechwytywania wzorcow ekranow gry |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | S (Small) |
-| **Status** | PENDING |
-| **Agent** | QA_INTEGRATION |
+| **Status** | COMPLETED |
+| **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F1.T2 (Screen Capture) |
 
 **Kryteria akceptacji:**
-- [ ] Aplikacja konsolowa do przechwytywania regionow ekranu
-- [ ] Zapis templateow do plikow PNG
-- [ ] Konfigurowalny region (x, y, width, height)
-- [ ] Dokumentacja jakie ekrany przechwyywac
+- [x] Aplikacja konsolowa do przechwytywania regionow ekranu
+- [x] Zapis templateow do plikow PNG
+- [x] Konfigurowalny region (x, y, width, height)
+- [x] Dokumentacja jakie ekrany przechwyywac
 
 **Powiazane pliki:**
-- `plans/phase_5_detailed.md`
-- `tools/TemplateCapturer/`
+- `tools/TemplateCapturer/Program.cs`
+- `tools/TemplateCapturer/TemplateCapturer.csproj`
+- `src/TzarBot.StateDetection/Templates/README.md`
 
 ---
 
@@ -46,20 +47,25 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 | **Opis** | Implementacja rozpoznawania stanu gry za pomoca template matching |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED |
 | **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F5.T1, F1.T2 |
 
 **Kryteria akceptacji:**
-- [ ] Rozpoznawanie: Victory, Defeat, InGame, MainMenu, Loading
-- [ ] Template matching (OpenCV)
-- [ ] Color histogram analysis (backup)
-- [ ] Dokladnosc victory/defeat > 99%
-- [ ] Dokladnosc in-game > 95%
+- [x] Rozpoznawanie: Victory, Defeat, InGame, MainMenu, Loading
+- [x] Template matching (OpenCV)
+- [x] Color histogram analysis (backup)
+- [ ] Dokladnosc victory/defeat > 99% (wymaga testow z rzeczywistymi templateami)
+- [ ] Dokladnosc in-game > 95% (wymaga testow z rzeczywistymi templateami)
 
 **Powiazane pliki:**
-- `plans/1general_plan.md` (sekcja 5.2)
-- `src/TzarBot.StateDetection/`
+- `src/TzarBot.StateDetection/GameState.cs`
+- `src/TzarBot.StateDetection/Detection/IGameStateDetector.cs`
+- `src/TzarBot.StateDetection/Detection/DetectionResult.cs`
+- `src/TzarBot.StateDetection/Detection/DetectionConfig.cs`
+- `src/TzarBot.StateDetection/Detection/TemplateMatchingDetector.cs`
+- `src/TzarBot.StateDetection/Detection/ColorHistogramDetector.cs`
+- `src/TzarBot.StateDetection/Detection/CompositeGameStateDetector.cs`
 
 ---
 
@@ -71,19 +77,22 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 | **Opis** | Serwis monitorujacy stan gry w czasie rzeczywistym |
 | **Priorytet** | MUST |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
-| **Agent** | QA_INTEGRATION |
+| **Status** | COMPLETED |
+| **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F5.T2 |
 
 **Kryteria akceptacji:**
-- [ ] Ciagle monitorowanie stanu gry
-- [ ] Timeout detection (30 min max)
-- [ ] Crash detection (okno nie odpowiada)
-- [ ] Idle/stuck detection (brak aktywnosci)
-- [ ] Zwracanie GameResult z wynikiem
+- [x] Ciagle monitorowanie stanu gry
+- [x] Timeout detection (30 min max)
+- [x] Crash detection (okno nie odpowiada)
+- [x] Idle/stuck detection (brak aktywnosci)
+- [x] Zwracanie GameResult z wynikiem
 
 **Powiazane pliki:**
-- `plans/1general_plan.md` (sekcja 5.4)
+- `src/TzarBot.StateDetection/Monitoring/IGameMonitor.cs`
+- `src/TzarBot.StateDetection/Monitoring/GameMonitor.cs`
+- `src/TzarBot.StateDetection/Monitoring/GameMonitorConfig.cs`
+- `src/TzarBot.StateDetection/Monitoring/MonitoringResult.cs`
 
 ---
 
@@ -95,19 +104,25 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 | **Opis** | Odczytywanie statystyk z ekranu koncowego gry |
 | **Priorytet** | SHOULD |
 | **Szacowany naklad** | M (Medium) |
-| **Status** | PENDING |
+| **Status** | COMPLETED |
 | **Agent** | tzarbot-agent-ai-senior |
 | **Zaleznosci** | F5.T2 |
 
 **Kryteria akceptacji:**
-- [ ] OCR regionu statystyk (Tesseract)
-- [ ] Parsowanie: units built/lost/killed
-- [ ] Parsowanie: buildings built/destroyed
-- [ ] Parsowanie: resources gathered
-- [ ] Parsowanie: game duration
+- [x] OCR regionu statystyk (Tesseract)
+- [x] Parsowanie: units built/lost/killed
+- [x] Parsowanie: buildings built/destroyed
+- [x] Parsowanie: resources gathered
+- [x] Parsowanie: game duration
+
+**Uwagi:**
+- Wymaga instalacji tessdata dla pelnej funkcjonalnosci
+- Dokladnosc zalezna od rozdzielczosci i czcionek gry
 
 **Powiazane pliki:**
-- `plans/1general_plan.md` (sekcja 5.3)
+- `src/TzarBot.StateDetection/Stats/IStatsExtractor.cs`
+- `src/TzarBot.StateDetection/Stats/OcrStatsExtractor.cs`
+- `src/TzarBot.StateDetection/Stats/GameStats.cs`
 
 ---
 
@@ -116,11 +131,11 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 | Metryka | Wartosc |
 |---------|---------|
 | Liczba taskow | 4 |
-| Ukonczonych | 0 |
+| Ukonczonych | 4 |
 | W trakcie | 0 |
 | Zablokowanych | 0 |
-| Oczekujacych | 4 |
-| Postep | 0% |
+| Oczekujacych | 0 |
+| Postep | 100% |
 
 ---
 
@@ -134,9 +149,9 @@ Faza 5 obejmuje implementacje modulu rozpoznajacego stan gry (wygrana/przegrana/
 
 ## Metryki sukcesu
 
-- [ ] Dokladnosc detekcji win/loss: >99%
-- [ ] Dokladnosc detekcji in-game: >95%
-- [ ] False positive rate dla crash: <1%
+- [ ] Dokladnosc detekcji win/loss: >99% (wymaga testow z templateami z gry)
+- [ ] Dokladnosc detekcji in-game: >95% (wymaga testow z templateami z gry)
+- [ ] False positive rate dla crash: <1% (wymaga testow integracyjnych)
 
 ---
 
@@ -157,6 +172,51 @@ Dokumentacja demo fazy MUSI zawierac:
 
 ## Notatki
 
-- Wymagane reczne przechwycenie templateow z gry
+- Wymagane reczne przechwycenie templateow z gry na VM
 - F5.T4 (OCR) jest SHOULD - statystyki sa nice-to-have dla fitness, nie krytyczne
-- Rozne rozdzielczosci moga wymagac scale-invariant matching
+- Rozne rozdzielczosci moga wymagac scale-invariant matching (zaimplementowane)
+- Unit testy dodane w `tests/TzarBot.Tests/Phase5/`
+
+---
+
+## Utworzone pliki
+
+### Projekt TzarBot.StateDetection
+```
+src/TzarBot.StateDetection/
+├── TzarBot.StateDetection.csproj
+├── GameState.cs
+├── Detection/
+│   ├── IGameStateDetector.cs
+│   ├── DetectionResult.cs
+│   ├── DetectionConfig.cs
+│   ├── TemplateMatchingDetector.cs
+│   ├── ColorHistogramDetector.cs
+│   └── CompositeGameStateDetector.cs
+├── Monitoring/
+│   ├── IGameMonitor.cs
+│   ├── GameMonitor.cs
+│   ├── GameMonitorConfig.cs
+│   └── MonitoringResult.cs
+├── Stats/
+│   ├── IStatsExtractor.cs
+│   ├── OcrStatsExtractor.cs
+│   └── GameStats.cs
+└── Templates/
+    └── README.md
+```
+
+### Tool TemplateCapturer
+```
+tools/TemplateCapturer/
+├── TemplateCapturer.csproj
+└── Program.cs
+```
+
+### Testy
+```
+tests/TzarBot.Tests/Phase5/
+├── GameStateDetectorTests.cs
+├── GameMonitorTests.cs
+└── StatsExtractorTests.cs
+```

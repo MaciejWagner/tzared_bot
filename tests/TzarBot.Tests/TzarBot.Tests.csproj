@@ -8,6 +8,8 @@
     <RollForward>LatestMajor</RollForward>
     <!-- Prevent testhost from hanging -->
     <VSTestHostProcessExitTimeout>60000</VSTestHostProcessExitTimeout>
+    <!-- Disable xUnit analyzer rules that cause issues -->
+    <NoWarn>$(NoWarn);xUnit1031</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +29,10 @@
     <ProjectReference Include="..\..\src\TzarBot.GameInterface\TzarBot.GameInterface.csproj" />
     <ProjectReference Include="..\..\src\TzarBot.Common\TzarBot.Common.csproj" />
     <ProjectReference Include="..\..\src\TzarBot.NeuralNetwork\TzarBot.NeuralNetwork.csproj" />
+    <ProjectReference Include="..\..\src\TzarBot.Orchestrator\TzarBot.Orchestrator.csproj" />
+    <ProjectReference Include="..\..\src\TzarBot.GeneticAlgorithm\TzarBot.GeneticAlgorithm.csproj" />
+    <ProjectReference Include="..\..\src\TzarBot.StateDetection\TzarBot.StateDetection.csproj" />
+    <ProjectReference Include="..\..\src\TzarBot.Training\TzarBot.Training.csproj" />
   </ItemGroup>
 
   <ItemGroup>

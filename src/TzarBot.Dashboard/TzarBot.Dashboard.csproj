@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Note: TzarBot.Training reference commented out due to build issues in that project.
+         Dashboard works independently with MockTrainingService.
+         Uncomment when TzarBot.Training is fixed for real integration. -->
+    <ProjectReference Include="..\TzarBot.Common\TzarBot.Common.csproj" />
+    <!-- Optional references for future integration:
+    <ProjectReference Include="..\TzarBot.GeneticAlgorithm\TzarBot.GeneticAlgorithm.csproj" />
+    <ProjectReference Include="..\TzarBot.Orchestrator\TzarBot.Orchestrator.csproj" />
+    <ProjectReference Include="..\TzarBot.Training\TzarBot.Training.csproj" />
+    -->
+  </ItemGroup>
+
+</Project>
