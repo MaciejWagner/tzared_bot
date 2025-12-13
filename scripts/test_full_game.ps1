@@ -38,10 +38,17 @@ Console.WriteLine("=== Full Game Test ===");
 Console.WriteLine("Starting at: " + DateTime.Now);
 
 var playwright = await Playwright.CreateAsync();
+// Use msedge (Edge) instead of Chromium for better Windows support
 var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
 {
     Headless = false,
-    Args = new[] { "--start-maximized" }
+    Channel = "msedge",
+    Args = new[] {
+        "--start-maximized",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-web-security",
+        "--allow-running-insecure-content"
+    }
 });
 
 var context = await browser.NewContextAsync(new BrowserNewContextOptions
@@ -113,11 +120,10 @@ Console.WriteLine("");
 Console.WriteLine("Step 4: Looking for GRAJ button...");
 var playSelectors = new[]
 {
-    "#start2",
+    "#startCustom",
     "text=GRAJ",
     "text=Graj",
-    "button:has-text('GRAJ')",
-    "button:has-text('▶')"
+    "button:has-text('GRAJ')"
 };
 
 IElementHandle? playButton = null;
@@ -138,43 +144,45 @@ foreach (var selector in playSelectors)
 if (playButton == null)
 {
     Console.WriteLine("ERROR: Play button not found!");
-    // Try clicking any button with GRAJ text
-    try
-    {
-        await page.ClickAsync("button:has-text('GRAJ')");
-        Console.WriteLine("Clicked button with GRAJ text");
-    }
-    catch
-    {
-        Console.WriteLine("Could not click GRAJ button");
-        return;
-    }
+    return;
 }
-else
-{
-    await playButton.ClickAsync();
-    Console.WriteLine("Clicked Play button!");
-}
+
+await playButton.ClickAsync();
+Console.WriteLine("Clicked Play button!");
 
 await Task.Delay(2000);
 await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_04_after_play_click.png" });
 
-// Wait for game to load
+// Wait for game to load - 20 seconds total (Edge loads fast)
 Console.WriteLine("");
-Console.WriteLine("Step 5: Waiting for game to start...");
-await Task.Delay(10000);
-await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_05_game_loading.png" });
+Console.WriteLine("Step 5: Waiting for game to load (20s)...");
+
+await Task.Delay(5000);
+await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_loading_005.png", Timeout = 30000 });
+Console.WriteLine("  5s elapsed...");
+
+await Task.Delay(5000);
+await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_loading_010.png", Timeout = 30000 });
+Console.WriteLine("  10s elapsed...");
+
+await Task.Delay(5000);
+await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_loading_015.png", Timeout = 30000 });
+Console.WriteLine("  15s elapsed...");
+
+await Task.Delay(5000);
+await page.ScreenshotAsync(new PageScreenshotOptions { Path = @"C:\\TzarBot\\Screenshots\\fg_loading_020.png", Timeout = 30000 });
+Console.WriteLine("  20s elapsed, game should be loaded!");
 
 // Check for canvas (game running)
 var canvas = await page.QuerySelectorAsync("canvas");
 Console.WriteLine("Canvas found: " + (canvas != null));
 
-// Monitor game for 30 seconds (training map should end quickly)
+// Monitor game for 15 seconds
 Console.WriteLine("");
-Console.WriteLine("Step 6: Monitoring game for victory/defeat (30 seconds)...");
+Console.WriteLine("Step 6: Monitoring game (15 seconds)...");
 
 var startTime = DateTime.Now;
-var timeout = TimeSpan.FromSeconds(30);
+var timeout = TimeSpan.FromSeconds(15);
 var result = "TIMEOUT";
 
 while (DateTime.Now - startTime < timeout)
@@ -250,7 +258,7 @@ dotnet run 2>&1 | Out-File "C:\TzarBot\Logs\full_game_test.log"
     Start-ScheduledTask -TaskName $taskName
 
     # Czekaj
-    $maxWait = 180
+    $maxWait = 90
     $waited = 0
     do {
         Start-Sleep -Seconds 10
