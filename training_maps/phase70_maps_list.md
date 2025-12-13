@@ -12,16 +12,30 @@
 
 ```
 WYGRANA = Pojawienie sie ekranu "YOU ARE VICTORIOUS"
+PRZEGRANA = Pojawienie sie ekranu porazki (timeout lub smierc)
 ```
 
-Detekcja opiera sie na rozpoznaniu obrazu ekranu zwyciestwa.
-Referencyjny screenshot: `game_screenshots/won_game.PNG`
+Detekcja opiera sie na rozpoznaniu obrazu ekranu zwyciestwa/porazki.
 
-**Cechy ekranu zwyciestwa do detekcji:**
+### Ekran Zwyciestwa (Victory)
+- Referencyjny screenshot: `game_screenshots/won_game.PNG`
 - Tekst "YOU ARE VICTORIOUS" (zloty, na dole okna modalnego)
 - Okno modalne z ozdobna ramka
 - Komunikat "[Player] won!" u gory ekranu
 - Przycisk X (czerwony) w prawym gornym rogu okna
+
+### Ekran Porazki (Defeat)
+- Referencyjny screenshot: `game_screenshots/defeated_game.PNG`
+- Tekst porazki w oknie modalnym
+- Pojawia sie po timeout (20 sekund) lub po smierci wszystkich jednostek/budynkow
+
+### Parametry Treningu
+| Parametr | Wartosc | Opis |
+|----------|---------|------|
+| Timeout | 20 sekund | Czas na wykonanie akcji (brak = porazka) |
+| Proby | 10 | Liczba prob na bota przed oceną fitness |
+| Sukces | Victory Screen | Bot wykonal zadanie |
+| Porazka | Defeat Screen | Timeout lub smierc |
 
 ---
 
@@ -32,16 +46,19 @@ Referencyjny screenshot: `game_screenshots/won_game.PNG`
 | **Nazwa pliku** | `training-0.tzared` |
 | **Status** | UTWORZONA |
 | **Cel** | Najprostsza mapa - poruszenie wiesniakiem = zwyciestwo |
+| **Timeout** | 20 sekund (brak akcji = porazka) |
 
 **Opis:**
 Mapa testowa do weryfikacji czy caly pipeline dziala:
 - 1 Wiesniaka na mapie
 - Poruszenie w JAKIMKOLWIEK kierunku triggeruje zwyciestwo
-- Sluzy do testowania detekcji ekranu zwyciestwa
+- Brak ruchu przez 20 sekund = ekran porazki
+- Sluzy do testowania detekcji ekranu zwyciestwa/porazki
 
 **Trigger zwyciestwa:**
 ```
 Wiesniaka.Pozycja != Wiesniaka.PozycjaStartowa → VICTORY
+Czas >= 20 sekund AND Brak ruchu → DEFEAT
 ```
 
 ---

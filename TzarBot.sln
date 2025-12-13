@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TzarBot.Training", "src\TzarBot.Training\TzarBot.Training.csproj", "{F7A8B9C0-D1E2-3456-F012-567890123456}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TzarBot.Dashboard", "src\TzarBot.Dashboard\TzarBot.Dashboard.csproj", "{A8B9C0D1-E2F3-4567-0123-678901234567}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TzarBot.BrowserInterface", "src\TzarBot.BrowserInterface\TzarBot.BrowserInterface.csproj", "{7D78B975-87E5-48ED-A4CF-A52B406E45C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -173,6 +175,18 @@ Global
 		{A8B9C0D1-E2F3-4567-0123-678901234567}.Release|x64.Build.0 = Release|Any CPU
 		{A8B9C0D1-E2F3-4567-0123-678901234567}.Release|x86.ActiveCfg = Release|Any CPU
 		{A8B9C0D1-E2F3-4567-0123-678901234567}.Release|x86.Build.0 = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|x64.Build.0 = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,5 +203,6 @@ Global
 		{E6F7A8B9-C0D1-2345-EF01-456789012345} = {C4D5E6F7-A8B9-0123-CDEF-234567890ABC}
 		{F7A8B9C0-D1E2-3456-F012-567890123456} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
 		{A8B9C0D1-E2F3-4567-0123-678901234567} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+		{7D78B975-87E5-48ED-A4CF-A52B406E45C2} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
 	EndGlobalSection
 EndGlobal

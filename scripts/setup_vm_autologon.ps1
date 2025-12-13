@@ -1,6 +1,11 @@
-# Setup autologon and run tests in user session
-$password = ConvertTo-SecureString 'password123' -AsPlainText -Force
-$cred = New-Object System.Management.Automation.PSCredential('test', $password)
+# Setup autologon on VM DEV
+# Po uruchomieniu VM bedzie automatycznie logowac jako 'test'
+
+# Tworzenie credentials bez modulu Security
+$securePassword = New-Object System.Security.SecureString
+"password123".ToCharArray() | ForEach-Object { $securePassword.AppendChar($_) }
+$securePassword.MakeReadOnly()
+$cred = New-Object System.Management.Automation.PSCredential("test", $securePassword)
 
 Write-Host "=== Setting up Auto-Logon on VM ===" -ForegroundColor Cyan
 

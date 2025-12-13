@@ -1,7 +1,7 @@
 # TzarBot Workflow Continuation Report
 
-**Ostatnia aktualizacja:** 2025-12-08 22:30
-**Status:** Phase 6 UKOŃCZONY - PROJEKT KOMPLETNY!
+**Ostatnia aktualizacja:** 2025-12-13 13:10
+**Status:** Phase 7 - Browser Interface ZAIMPLEMENTOWANY
 
 ---
 
@@ -10,7 +10,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Ukończone fazy** | Phase 0, 1, 2, 3, 4, 5, 6 |
-| **Aktualny task** | PROJEKT KOMPLETNY |
+| **Aktualny task** | Phase 7.0 - Browser Interface dla tza.red |
 | **Build Status** | PASSED (0 errors, 0 warnings) |
 
 ### Postęp projektu
@@ -24,170 +24,147 @@
 | Phase 4: Hyper-V Infrastructure | ✅ COMPLETED | 5/6 | 54 pass |
 | Phase 5: Game State Detection | ✅ COMPLETED | 4/4 | ~20 pass |
 | Phase 6: Training Pipeline | ✅ COMPLETED | 5/6 | 90 pass |
-
-**Łączny postęp: 100% (35/36 core tasks)**
-
----
-
-## Co zostało zrobione w tej sesji (2025-12-08 22:30)
-
-### Phase 6: Training Pipeline - COMPLETED ✅
-
-#### F6.T1: Training Loop Core
-- **TrainingConfig**: PopulationSize, GamesPerGenome, MaxParallelVMs, CheckpointInterval
-- **TrainingState**: CurrentGeneration, Stage, Population, BestGenome, History
-- **ITrainingPipeline**: Interface z InitializeAsync, RunAsync, PauseAsync, ResumeAsync
-- **TrainingPipeline**: Główna implementacja koordynująca GA, Orchestrator, Curriculum, Checkpoint
-- Events: GenerationCompleted, NewBestGenomeFound, StageChanged, StatusChanged, ErrorOccurred
-
-#### F6.T2: Curriculum Manager
-- **6 etapów**: Bootstrap → Basic → CombatEasy → CombatNormal → CombatHard → Tournament
-- **FitnessMode**: Survival, Economy, Combat, Victory, Efficiency
-- **FitnessWeights**: Konfigurowalne wagi per stage
-- Automatyczne promotion/demotion based on win rate i fitness
-
-#### F6.T3: Checkpoint Manager
-- MessagePack + LZ4 compression
-- SHA256 checksum verification
-- Auto-pruning starych checkpointów (keep last 10)
-- Separate storage dla best genomes
-- "latest.bin" quick-access link
-
-#### F6.T4: Tournament System
-- Standard ELO rating (FIDE formula)
-- Swiss-system pairing (avoids rematches)
-- Win probability calculations
-- Standing tracking
-
-#### F6.T5: Blazor Dashboard
-- **4 strony**: Index, Generations, Population, Charts
-- **SignalR Hub**: Real-time updates
-- **6 komponentów**: StatusBadge, ConnectionStatus, StageIndicator, FitnessChart, StatCard, ActivityFeed
-- **MockTrainingService**: Do testowania bez treningu
-- Dark theme, Chart.js integration
+| **Phase 7: Browser Interface** | 🔄 IN PROGRESS | - | - |
 
 ---
 
-## Struktura projektu (FINAL)
+## Co zostało zrobione w tej sesji (2025-12-13)
 
+### Phase 7: Browser Interface (tza.red zamiast Tzared.exe)
+
+**Decyzja architektoniczna:**
+- Używamy przeglądarki na VM zamiast procesu Tzared.exe
+- tza.red = przeglądarkowa wersja gry Tzar
+- Każdy bot nadal działa na osobnej VM
+- Playwright do automatyzacji przeglądarki
+
+#### Zaimplementowane komponenty:
+
+1. **TzarBot.BrowserInterface** (nowy projekt)
+   - `IBrowserGameInterface.cs` - interfejs
+   - `PlaywrightGameInterface.cs` - implementacja z Playwright
+   - Microsoft.Playwright 1.49.0
+
+2. **Playwright na VM DEV** - zainstalowany i działający:
+   - Chromium 131.0.6778.33 pobrany
+   - PLAYWRIGHT_BROWSERS_PATH = $env:LOCALAPPDATA\ms-playwright
+
+3. **Odkryte selektory DOM tza.red:**
+
+| Element | Selektor | Opis |
+|---------|----------|------|
+| Skirmish | `#rnd0` | "POTYCZKA Z SI" |
+| Load Game | `#load1` | "WCZYTAJ GRĘ" + file chooser |
+| Play (custom map) | `#startCustom` | "GRAJ" po wczytaniu mapy |
+| Play (random map) | `#start2` | "GRAJ" dla losowej mapy |
+| Map Editor | `#edmap1` | "EDYTOR MAPY" |
+| Add Player | `#addPlayer` | "+" |
+| Remove Player | `#removePlayer` | "−" |
+
+4. **Testy przeprowadzone:**
+   - ✅ Playwright otwiera tza.red
+   - ✅ Nawigacja do POTYCZKA Z SI działa
+   - ✅ Wczytywanie mapy przez file chooser działa
+   - ✅ Uruchamianie gry (GRAJ) działa
+   - ✅ Gra renderuje się w canvas
+   - ⚠️ Victory/Defeat renderowane w canvas (wymaga template matching)
+
+---
+
+## Pliki stworzone/zmodyfikowane
+
+### Projekt TzarBot.BrowserInterface
 ```
-src/
-├── TzarBot.Common/              # Models, interfaces
-├── TzarBot.GameInterface/       # Screen capture, input injection
-├── TzarBot.NeuralNetwork/       # ONNX, inference engine
-├── TzarBot.GeneticAlgorithm/    # GA engine, operators, fitness
-├── TzarBot.Orchestrator/        # VM management, workers
-├── TzarBot.StateDetection/      # Game state detection, OCR
-├── TzarBot.Training/            # NEW: Training pipeline, curriculum, checkpoint
-├── TzarBot.Dashboard/           # NEW: Blazor Server monitoring dashboard
-└── TzarBot.GameInterface.Demo/  # Demo application
-
-tools/
-└── TemplateCapturer/            # Template capture utility
-
-tests/TzarBot.Tests/
-├── Phase1/                      # Game Interface tests
-├── Phase2/                      # Neural Network tests
-├── Phase3/                      # Genetic Algorithm tests
-├── Phase4/                      # Orchestrator tests
-├── Phase5/                      # State Detection tests
-└── Phase6/                      # NEW: Training Pipeline tests (90 tests)
+src/TzarBot.BrowserInterface/
+├── TzarBot.BrowserInterface.csproj
+├── IBrowserGameInterface.cs
+└── PlaywrightGameInterface.cs
 ```
 
----
+### Skrypty testowe
+```
+scripts/
+├── install_playwright_on_vm.ps1
+├── install_playwright_browsers.ps1
+├── test_playwright_on_vm.ps1
+├── test_browser_navigation.ps1
+├── test_browser_dom.ps1
+├── test_tzared_menu.ps1
+├── test_single_player.ps1
+├── test_load_map.ps1
+├── test_file_upload.ps1
+├── test_full_game.ps1
+└── copy_*_screenshots.ps1 (różne)
+```
 
-## Komponenty Phase 6
-
-### Training Pipeline
-
-| Komponent | Plik | Opis |
-|-----------|------|------|
-| TrainingConfig | `Core/TrainingConfig.cs` | Konfiguracja treningu |
-| TrainingState | `Core/TrainingState.cs` | Stan treningu |
-| ITrainingPipeline | `Core/ITrainingPipeline.cs` | Interfejs pipeline |
-| TrainingPipeline | `Core/TrainingPipeline.cs` | Główna implementacja |
-
-### Curriculum
-
-| Komponent | Plik | Opis |
-|-----------|------|------|
-| CurriculumStage | `Curriculum/CurriculumStage.cs` | Definicja etapu |
-| StageDefinitions | `Curriculum/StageDefinitions.cs` | 6 etapów |
-| ICurriculumManager | `Curriculum/ICurriculumManager.cs` | Interfejs |
-| CurriculumManager | `Curriculum/CurriculumManager.cs` | Implementacja |
-
-### Checkpoint
-
-| Komponent | Plik | Opis |
-|-----------|------|------|
-| Checkpoint | `Checkpoint/Checkpoint.cs` | Model checkpointu |
-| CheckpointInfo | `Checkpoint/CheckpointInfo.cs` | Metadane |
-| ICheckpointManager | `Checkpoint/ICheckpointManager.cs` | Interfejs |
-| CheckpointManager | `Checkpoint/CheckpointManager.cs` | Implementacja |
-
-### Tournament
-
-| Komponent | Plik | Opis |
-|-----------|------|------|
-| MatchResult | `Tournament/MatchResult.cs` | Wynik meczu |
-| EloCalculator | `Tournament/EloCalculator.cs` | Obliczenia ELO |
-| ITournamentManager | `Tournament/ITournamentManager.cs` | Interfejs |
-| TournamentManager | `Tournament/TournamentManager.cs` | Swiss-system |
-
-### Dashboard
-
-| Komponent | Opis |
-|-----------|------|
-| Index.razor | Główny dashboard z kontrolkami |
-| Generations.razor | Historia generacji |
-| Population.razor | Populacja genomów |
-| Charts.razor | Wykresy fitness, win rate |
-| TrainingHub.cs | SignalR hub |
-| MockTrainingService.cs | Fake data dla testów |
+### Screenshoty z testów
+```
+demo_results/
+├── playwright_test.png
+├── nav_test/
+├── dom_test/
+├── menu_test/
+├── sp_test/
+├── file_upload_test/
+└── full_game_test/
+    ├── fg_01_main.png
+    ├── fg_02_skirmish.png
+    ├── fg_03_map_loaded.png
+    ├── fg_04_after_play_click.png
+    ├── fg_05_game_loading.png
+    ├── fg_game_*.png (screenshoty z gry)
+    └── fg_final.png
+```
 
 ---
 
-## Wyniki testów (FINAL)
+## Następne kroki
 
-| Faza | Pass | Fail | Notes |
-|------|------|------|-------|
-| Phase 1 | 24 | 0 | InputInjector, WindowDetector |
-| Phase 2 | 177 | 4 | Neural Network (4 flaky) |
-| Phase 3 | ~30 | 0 | Genetic Algorithm |
-| Phase 4 | 54 | 0 | Orchestrator |
-| Phase 5 | ~20 | 0 | State Detection |
-| Phase 6 | 90 | 0 | Training Pipeline |
-| **TOTAL** | **~395** | **4** | |
+### Do zaimplementowania:
+
+1. **Template Matching dla Victory/Defeat**
+   - Victory/Defeat renderowane w canvas WebGL
+   - Użyć istniejący `TemplateMatchingDetector` z OpenCV
+   - Dodać szablony dla ekranów zwycięstwa/przegranej z tza.red
+
+2. **Dostosowanie mapy treningowej**
+   - Mapa training-0.tzared może wymagać modyfikacji
+   - W tza.red gra nie kończy się automatycznie po timeout
+   - Gracze muszą być aktywni lub mapa musi być skonfigurowana inaczej
+
+3. **Integracja z Training Pipeline**
+   - Połączyć BrowserInterface z TrainingPipeline
+   - Zastąpić GameInterface z Phase 1 (Tzared.exe) na BrowserInterface (tza.red)
 
 ---
 
-## Uruchomienie systemu
+## Komendy do kontynuacji
 
-### Dashboard (development)
+### Budowanie projektu
 ```powershell
-dotnet run --project src/TzarBot.Dashboard --urls="http://localhost:5050"
+dotnet build "C:\Users\maciek\ai_experiments\tzar_bot\src\TzarBot.BrowserInterface\TzarBot.BrowserInterface.csproj"
 ```
 
-### Pełny trening (wymaga VM)
+### Test Playwright na VM
 ```powershell
-# 1. Przygotuj Template VM
-Invoke-Command -VMName DEV -ScriptBlock { C:\TzarBot\scripts\Prepare-TzarTemplate.ps1 }
+powershell -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\test_full_game.ps1"
+```
 
-# 2. Uruchom trening
-dotnet run --project src/TzarBot.Training.Demo
+### Kopiowanie screenshotów z VM
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\copy_fg_screenshots.ps1"
 ```
 
 ---
 
-## Pozostałe zadania (opcjonalne)
+## Kluczowe odkrycia
 
-| Task | Opis | Priorytet |
-|------|------|-----------|
-| F4.T1 | Template VM preparation (manual) | LOW |
-| F4.T6 | Multi-VM Integration Test | LOW |
-| F6.T6 | Full E2E Test (24h stability) | LOW |
+1. **tza.red to NIE Unity WebGL** - to customowa implementacja z HTML/CSS/JS
+2. **Brak canvas na stronie głównej** - canvas pojawia się dopiero PO uruchomieniu gry
+3. **File chooser dla map** - Playwright obsługuje native file dialog przez WaitForFileChooserAsync
+4. **Gra działa w canvas** - Victory/Defeat musi być wykrywane przez template matching na screenshotach
 
 ---
 
-*Raport zaktualizowany: 2025-12-08 22:30*
-*Status: PROJEKT KOMPLETNY - wszystkie fazy implementacyjne zakończone!*
+*Raport zaktualizowany: 2025-12-13 13:10*
+*Status: Phase 7 Browser Interface - nawigacja i uruchamianie gry działa, pozostaje template matching dla Victory/Defeat*
