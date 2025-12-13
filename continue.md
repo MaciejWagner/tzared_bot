@@ -1,7 +1,7 @@
 # TzarBot Workflow Continuation Report
 
-**Ostatnia aktualizacja:** 2025-12-13 14:05
-**Status:** AKTYWNY - Generacja 0 wygenerowana, gotowy do pierwszego treningu
+**Ostatnia aktualizacja:** 2025-12-13 16:20
+**Status:** AKTYWNY - Pierwszy trening wykonany, wyniki zebrane
 
 ---
 
@@ -9,10 +9,11 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Ukończone fazy** | Phase 0, 1, 2, 3, 4, 5, 6, 7, 8 (Population Gen) |
-| **Aktualny task** | Pierwszy trening sieci neuronowych |
+| **Ukończone fazy** | Phase 0-8 |
+| **Aktualny task** | Analiza wyników treningu generacji 0 |
 | **Build Status** | PASSED |
 | **Population** | 20 sieci wygenerowanych |
+| **Training Status** | 5/20 sieci przetestowanych |
 
 ### Postęp projektu
 
@@ -27,86 +28,66 @@
 | Phase 6: Training Pipeline | COMPLETED | 5/6 | 90 pass |
 | Phase 7: Browser Interface | COMPLETED | 6/6 | Demo PASS |
 | **Phase 8: Population Generator** | COMPLETED | 1/1 | - |
+| **Phase 9: First Training** | IN PROGRESS | 5/20 tested | - |
 
 ---
 
-## Co zostało zrobione w tej sesji (2025-12-13 13:55 - 14:05)
+## Co zostało zrobione w tej sesji (2025-12-13 14:30 - 16:20)
 
-### 1. Stworzenie PopulationGenerator
+### 1. Deployment na VM DEV
 
-Nowe narzędzie w `tools/PopulationGenerator/`:
-- Generuje N sieci neuronowych z losowymi wagami (Xavier init)
-- Eksportuje do ONNX i MessagePack
-- Tworzy raporty JSON i Markdown
-- Generuje protokół uczenia
+- Skopiowano 207 plików self-contained TrainingRunner
+- Skopiowano 20 modeli ONNX (generation_0)
+- Zainstalowano VC++ Redistributable v14.44.35211.00
+- Skopiowano Playwright node (337 plików)
 
-### 2. Wygenerowanie 20 sieci neuronowych
+### 2. Pierwszy test treningu - SUKCES!
 
-**Lokalizacja:** `training/generation_0/`
+TrainingRunner uruchomiony pomyślnie na VM DEV:
+- Sieć neural network → ONNX inference działa
+- Playwright → tza.red → gra uruchamia się
+- Game loop → zbiera screenshots, wykonuje akcje
 
-```
-training/generation_0/
-├── genomes/           # 20 plików .bin (MessagePack)
-├── onnx/              # 20 plików .onnx (modele sieci)
-├── reports/
-│   ├── population_report.json    # Raport JSON
-│   ├── population_report.md      # Raport Markdown
-│   └── training_protocol.md      # Protokół uczenia
-└── population.bin     # Cała populacja w jednym pliku
-```
+### 3. Batch training (sieci 00-04)
 
-### 3. Statystyki populacji
+Wyniki pierwszych 5 sieci (60s każda):
 
-| Metryka | Wartość |
-|---------|---------|
-| Liczba sieci | 20 |
-| Średnia liczba wag | 6,294,531 |
-| Min wag | 2,779,360 |
-| Max wag | 11,244,448 |
-| Seed bazowy | 20251213 |
+| Network | Actions | APS | Inference (ms) |
+|---------|---------|-----|---------------|
+| 00 | 32 | 0.53 | 19.7 |
+| 01 | 0 | 0.00 | - |
+| 02 | 3 | 0.05 | 96.1 |
+| 03 | 9 | 0.15 | 36.0 |
+| 04 | 15 | 0.25 | 61.2 |
 
-### 4. Różnorodność architektur
+### 4. Analiza wyników
 
-Populacja zawiera 10 różnych konfiguracji warstw ukrytych:
-- `256 -> 128` (standard 2-layer)
-- `512 -> 256` (larger 2-layer)
-- `128 -> 64` (smaller 2-layer)
-- `256 -> 128 -> 64` (3-layer pyramid)
-- `512 -> 256 -> 128` (larger 3-layer)
-- `128 -> 128` (uniform 2-layer)
-- `256 -> 256` (uniform larger)
-- `384 -> 192` (non-standard)
-- `256 -> 128 -> 64 -> 32` (4-layer deep)
-- `192 -> 96` (alternative)
+- **Best performer:** network_00 (32 actions)
+- **Problem:** Duże sieci (512→256) są za wolne
+- **Bottleneck:** Screenshot capture (~50-100ms)
+- **Ranking:** networks 00, 04 przeszłyby do następnej generacji
 
 ---
 
 ## Następne kroki do wykonania
 
-### PRIORYTET 1: Uruchomienie pierwszego treningu
+### PRIORYTET 1: Kontynuacja treningu
 
-**Protokół uczenia (z `training_protocol.md`):**
-- 20 modeli
-- 10 prób na model (200 gier łącznie)
-- Faza 1: Basic Survival (training-0.tzared, 5 min)
-- Faza 2: Unit Production (training-1.tzared, 10 min)
-- Faza 3: Combat (training-2.tzared, 15 min)
-- Selekcja: Top 50% przechodzi do następnej generacji
+1. Uruchomić pozostałe sieci (05-19)
+2. Zebrać pełne wyniki generacji 0
+3. Wybrać top 50% (10 najlepszych)
 
-**Wymagane:**
-1. Skopiować modele ONNX na VM DEV
-2. Uruchomić grę z pierwszym modelem
-3. Zebrać metryki (survival time, resources, units)
-4. Powtórzyć dla wszystkich 20 modeli
-5. Wypełnić tabelki w `training_protocol.md`
+### PRIORYTET 2: Optymalizacja
 
-### PRIORYTET 2: Analiza wyników
+1. Rozważyć mniejsze architektury
+2. Optymalizować screenshot capture
+3. Zaimplementować parallel inference
 
-Po zebraniu danych z 200 gier:
-- Ocenić fitness każdego modelu
-- Wybrać top 10 (50%)
-- Wygenerować potomstwo (crossover + mutation)
-- Rozpocząć Generację 1
+### PRIORYTET 3: Generacja 1
+
+1. Crossover najlepszych sieci
+2. Mutacja potomstwa
+3. Rozpocząć trening generacji 1
 
 ---
 
@@ -114,27 +95,28 @@ Po zebraniu danych z 200 gier:
 
 | Plik | Opis |
 |------|------|
-| `training/generation_0/` | Sieci neuronowe generacji 0 |
-| `training/generation_0/reports/training_protocol.md` | Protokół uczenia |
-| `tools/PopulationGenerator/` | Narzędzie do generowania populacji |
-| `scripts/test_full_game.ps1` | Demo Playwright z Edge |
+| `training/generation_0/results/` | Wyniki testów (JSON) |
+| `training/generation_0/results/analysis.md` | Analiza wyników |
+| `scripts/run_batch_training.ps1` | Batch training script |
+| `scripts/run_training_direct.ps1` | Single network training |
+| `tools/TrainingRunner/` | Główne narzędzie treningu |
 
 ---
 
 ## Komendy do kontynuacji
 
 ```powershell
-# Build całego projektu
-dotnet build "C:\Users\maciek\ai_experiments\tzar_bot\TzarBot.sln"
+# Run batch training for remaining networks
+pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\run_batch_training.ps1" -StartId 5 -EndId 19 -DurationSeconds 60
 
-# Generowanie nowej populacji (opcjonalnie z innymi parametrami)
-dotnet run --project "C:\Users\maciek\ai_experiments\tzar_bot\tools\PopulationGenerator\PopulationGenerator.csproj" -- "training\generation_1" 20 [SEED]
+# Run single network
+pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\run_training_direct.ps1" -NetworkId X -DurationSeconds 60
 
-# Test demo Playwright (Edge)
-powershell -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\test_full_game.ps1"
+# Check VM status
+pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\check_vm_status.ps1"
 ```
 
 ---
 
-*Raport zaktualizowany: 2025-12-13 14:05*
-*Status: Generacja 0 gotowa, czeka na pierwszy trening*
+*Raport zaktualizowany: 2025-12-13 16:20*
+*Status: Pierwszy trening SUKCES, kontynuacja w toku*

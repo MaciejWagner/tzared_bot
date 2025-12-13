@@ -76,3 +76,8 @@ scripts.zip
 src.zip
 tests.zip
 *.zip
+*.dll
+
+# Publish outputs
+publish/
+publish-sc/

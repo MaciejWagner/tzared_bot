@@ -1,0 +1,15 @@
+{
+  "ModelPath": "C:\\TzarBot\\Models\\generation_0\\network_00.onnx",
+  "MapPath": "C:\\TzarBot\\Maps\\training-0.tzared",
+  "StartTime": "2025-12-13T14:15:03.6530162Z",
+  "EndTime": "2025-12-13T14:16:04.3177227Z",
+  "Outcome": "TIMEOUT",
+  "TargetDurationSeconds": 60,
+  "ActualDurationSeconds": 60.6645847,
+  "TotalFrames": 35,
+  "TotalActions": 32,
+  "AverageInferenceMs": 19.695518749999994,
+  "MinInferenceMs": 9.3702,
+  "MaxInferenceMs": 79.8959,
+  "ActionsPerSecond": 0.5274906299655259
+}

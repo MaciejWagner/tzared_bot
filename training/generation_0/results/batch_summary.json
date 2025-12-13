@@ -1,0 +1,34 @@
+[
+  {
+    "NetworkId": 1,
+    "Outcome": "TIMEOUT",
+    "Duration": 61.411348,
+    "Actions": 0,
+    "APS": 0.0,
+    "InferenceMs": 0.0
+  },
+  {
+    "NetworkId": 2,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.903967,
+    "Actions": 3,
+    "APS": 0.05,
+    "InferenceMs": 96.1
+  },
+  {
+    "NetworkId": 3,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.9220846,
+    "Actions": 9,
+    "APS": 0.15,
+    "InferenceMs": 36.0
+  },
+  {
+    "NetworkId": 4,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.6300763,
+    "Actions": 15,
+    "APS": 0.25,
+    "InferenceMs": 61.2
+  }
+]
