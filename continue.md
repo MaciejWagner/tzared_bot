@@ -1,7 +1,7 @@
 # TzarBot Workflow Continuation Report
 
-**Ostatnia aktualizacja:** 2025-12-13 16:20
-**Status:** AKTYWNY - Pierwszy trening wykonany, wyniki zebrane
+**Ostatnia aktualizacja:** 2025-12-13 17:15
+**Status:** COMPLETED - Generacja 0 w pełni ewaluowana, top 10 wybrane
 
 ---
 
@@ -9,11 +9,11 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Ukończone fazy** | Phase 0-8 |
-| **Aktualny task** | Analiza wyników treningu generacji 0 |
+| **Ukończone fazy** | Phase 0-9 |
+| **Aktualny task** | Generation 0 COMPLETED |
 | **Build Status** | PASSED |
 | **Population** | 20 sieci wygenerowanych |
-| **Training Status** | 5/20 sieci przetestowanych |
+| **Training Status** | 20/20 sieci przetestowanych ✅ |
 
 ### Postęp projektu
 
@@ -28,11 +28,11 @@
 | Phase 6: Training Pipeline | COMPLETED | 5/6 | 90 pass |
 | Phase 7: Browser Interface | COMPLETED | 6/6 | Demo PASS |
 | **Phase 8: Population Generator** | COMPLETED | 1/1 | - |
-| **Phase 9: First Training** | IN PROGRESS | 5/20 tested | - |
+| **Phase 9: First Training** | COMPLETED | 20/20 tested | - |
 
 ---
 
-## Co zostało zrobione w tej sesji (2025-12-13 14:30 - 16:20)
+## Co zostało zrobione w tej sesji (2025-12-13 14:30 - 17:15)
 
 ### 1. Deployment na VM DEV
 
@@ -48,46 +48,58 @@ TrainingRunner uruchomiony pomyślnie na VM DEV:
 - Playwright → tza.red → gra uruchamia się
 - Game loop → zbiera screenshots, wykonuje akcje
 
-### 3. Batch training (sieci 00-04)
+### 3. PEŁNY batch training (wszystkie 20 sieci) - COMPLETED!
 
-Wyniki pierwszych 5 sieci (60s każda):
+Wyniki wszystkich sieci (60s każda):
 
-| Network | Actions | APS | Inference (ms) |
-|---------|---------|-----|---------------|
-| 00 | 32 | 0.53 | 19.7 |
-| 01 | 0 | 0.00 | - |
-| 02 | 3 | 0.05 | 96.1 |
-| 03 | 9 | 0.15 | 36.0 |
-| 04 | 15 | 0.25 | 61.2 |
+| Network | Actions | APS | Inference (ms) | Status |
+|---------|---------|-----|---------------|--------|
+| 18 | 44 | 0.72 | 13.2 | TOP 10 |
+| 16 | 43 | 0.71 | 13.8 | TOP 10 |
+| 13-17,19 | 42 | 0.69 | ~13 | TOP 10 |
+| 12 | 41 | 0.68 | 11.0 | TOP 10 |
+| 06 | 38 | 0.63 | 16.6 | TOP 10 |
+| 05 | 36 | 0.59 | 13.8 | TOP 10 |
+| 00-04,07-11 | 0-36 | - | >20 | ELIMINATED |
 
 ### 4. Analiza wyników
 
-- **Best performer:** network_00 (32 actions)
-- **Problem:** Duże sieci (512→256) są za wolne
-- **Bottleneck:** Screenshot capture (~50-100ms)
-- **Ranking:** networks 00, 04 przeszłyby do następnej generacji
+- **Best performer:** network_18 (44 actions, 0.72 APS)
+- **Fastest inference:** network_15 (10.7ms)
+- **Average APS:** 0.46 (target was 10, limited by Playwright screenshots)
+- **Selection:** Top 10 sieci wybrane do Generation 1
+
+### 5. Test interaktywnej sesji (Edge)
+
+Zmieniono przeglądarkę z Chromium na Edge (rozwiązuje problem blokowania mapy na 100%).
+Testy w sesji interaktywnej wykazały ~24x wolniejszą inference vs Session 0:
+- Session 0: ~13ms inference, ~42 akcje
+- Interaktywna: ~310ms inference, ~3 akcje
+
+**Wniosek:** Używać Session 0 do treningu, sesję interaktywną tylko do debugowania.
 
 ---
 
 ## Następne kroki do wykonania
 
-### PRIORYTET 1: Kontynuacja treningu
+### PRIORYTET 1: Generacja 1 (NEXT)
 
-1. Uruchomić pozostałe sieci (05-19)
-2. Zebrać pełne wyniki generacji 0
-3. Wybrać top 50% (10 najlepszych)
+1. Wykonać crossover top 10 sieci
+2. Zastosować mutację
+3. Wygenerować 20 nowych sieci ONNX
+4. Uruchomić trening generacji 1
 
-### PRIORYTET 2: Optymalizacja
+### PRIORYTET 2: Optymalizacja APS
 
-1. Rozważyć mniejsze architektury
-2. Optymalizować screenshot capture
-3. Zaimplementować parallel inference
+1. Rozważyć mniejsze architektury (10-15ms inference = najlepsze wyniki)
+2. Optymalizować screenshot capture (obecnie główny bottleneck)
+3. Rozważyć zmniejszenie rozdzielczości canvas
 
-### PRIORYTET 3: Generacja 1
+### PRIORYTET 3: Dłuższe testy
 
-1. Crossover najlepszych sieci
-2. Mutacja potomstwa
-3. Rozpocząć trening generacji 1
+1. Zwiększyć czas treningu do 5 minut (obecnie 60s)
+2. Testować na trudniejszych mapach
+3. Zaimplementować lepszą funkcję fitness (nie tylko liczba akcji)
 
 ---
 
@@ -118,5 +130,6 @@ pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scri
 
 ---
 
-*Raport zaktualizowany: 2025-12-13 16:20*
-*Status: Pierwszy trening SUKCES, kontynuacja w toku*
+*Raport zaktualizowany: 2025-12-13 17:15*
+*Status: Phase 9 COMPLETED - Generation 0 fully evaluated*
+*Top 10 sieci wybrane: 05, 06, 12, 13, 14, 15, 16, 17, 18, 19*

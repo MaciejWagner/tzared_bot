@@ -31,10 +31,12 @@ public sealed class PlaywrightGameInterface : IBrowserGameInterface
 
         _playwright = await Playwright.CreateAsync();
 
-        // Use Chromium for best compatibility
+        // Use Edge (msedge) - works better with tza.red than Chromium
+        // Edge uses the same engine but doesn't have map loading issues
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             Headless = headless,
+            Channel = "msedge",
             Args = new[]
             {
                 "--start-maximized",

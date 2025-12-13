@@ -1,34 +1,122 @@
 [
   {
-    "NetworkId": 1,
+    "NetworkId": 5,
     "Outcome": "TIMEOUT",
-    "Duration": 61.411348,
-    "Actions": 0,
-    "APS": 0.0,
-    "InferenceMs": 0.0
+    "Duration": 60.8563797,
+    "Actions": 36,
+    "APS": 0.59,
+    "InferenceMs": 13.8
   },
   {
-    "NetworkId": 2,
+    "NetworkId": 6,
     "Outcome": "TIMEOUT",
-    "Duration": 60.903967,
-    "Actions": 3,
-    "APS": 0.05,
-    "InferenceMs": 96.1
+    "Duration": 60.4518606,
+    "Actions": 38,
+    "APS": 0.63,
+    "InferenceMs": 16.6
   },
   {
-    "NetworkId": 3,
+    "NetworkId": 7,
     "Outcome": "TIMEOUT",
-    "Duration": 60.9220846,
-    "Actions": 9,
-    "APS": 0.15,
-    "InferenceMs": 36.0
+    "Duration": 62.8211442,
+    "Actions": 15,
+    "APS": 0.24,
+    "InferenceMs": 50.8
   },
   {
-    "NetworkId": 4,
+    "NetworkId": 8,
     "Outcome": "TIMEOUT",
-    "Duration": 60.6300763,
+    "Duration": 60.0915183,
     "Actions": 15,
     "APS": 0.25,
-    "InferenceMs": 61.2
+    "InferenceMs": 30.7
+  },
+  {
+    "NetworkId": 9,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.3460992,
+    "Actions": 33,
+    "APS": 0.55,
+    "InferenceMs": 12.5
+  },
+  {
+    "NetworkId": 10,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.1748595,
+    "Actions": 36,
+    "APS": 0.6,
+    "InferenceMs": 13.5
+  },
+  {
+    "NetworkId": 11,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.2427594,
+    "Actions": 36,
+    "APS": 0.6,
+    "InferenceMs": 18.8
+  },
+  {
+    "NetworkId": 12,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.059095,
+    "Actions": 41,
+    "APS": 0.68,
+    "InferenceMs": 11.0
+  },
+  {
+    "NetworkId": 13,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.3984186,
+    "Actions": 42,
+    "APS": 0.7,
+    "InferenceMs": 13.2
+  },
+  {
+    "NetworkId": 14,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.6307435,
+    "Actions": 42,
+    "APS": 0.69,
+    "InferenceMs": 18.2
+  },
+  {
+    "NetworkId": 15,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.4870015,
+    "Actions": 42,
+    "APS": 0.69,
+    "InferenceMs": 10.7
+  },
+  {
+    "NetworkId": 16,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.6035741,
+    "Actions": 43,
+    "APS": 0.71,
+    "InferenceMs": 13.8
+  },
+  {
+    "NetworkId": 17,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.6940208,
+    "Actions": 42,
+    "APS": 0.69,
+    "InferenceMs": 14.8
+  },
+  {
+    "NetworkId": 18,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.7289127,
+    "Actions": 44,
+    "APS": 0.72,
+    "InferenceMs": 13.2
+  },
+  {
+    "NetworkId": 19,
+    "Outcome": "TIMEOUT",
+    "Duration": 60.6814237,
+    "Actions": 42,
+    "APS": 0.69,
+    "InferenceMs": 11.3
   }
 ]
