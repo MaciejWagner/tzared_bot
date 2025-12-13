@@ -1,7 +1,7 @@
 # TzarBot - Progress Dashboard
 
 **Ostatnia aktualizacja:** 2025-12-09
-**Status projektu:** COMPLETED (100% core functionality)
+**Status projektu:** TRAINING PHASE (Fazy 0-6 COMPLETED, Faza 7 PENDING)
 
 ---
 
@@ -12,13 +12,13 @@
 |                      TZARBOT PROGRESS DASHBOARD                           |
 +--------------------------------------------------------------------------+
 |                                                                           |
-|  Calkowity postep:  [########################################] 100%      |
+|  Calkowity postep:  [##############################..........] 73%      |
 |                                                                           |
-|  Ukonczone fazy:    7/7 (Phase 0-6 COMPLETED)                            |
-|  Ukonczone taski:   35/36  (97% - 1 optional pending)                    |
+|  Ukonczone fazy:    7/8 (Phase 0-6 COMPLETED, Phase 7 PENDING)          |
+|  Ukonczone taski:   35/48  (73%)                                         |
 |  Testy:             ~417 PASS                                            |
 |                                                                           |
-|  Status:            PROJEKT KOMPLETNY                                    |
+|  Status:            GOTOWY DO TRENINGU                                   |
 |                                                                           |
 +--------------------------------------------------------------------------+
 ```
@@ -35,6 +35,7 @@ Faza 3 [Genetic Algo]     [####################] 100%  COMPLETED (5/5)
 Faza 4 [Hyper-V Infra]    [##################..] 83%   COMPLETED* (5/6)
 Faza 5 [State Detection]  [####################] 100%  COMPLETED (4/4)
 Faza 6 [Training]         [##################..] 83%   COMPLETED* (5/6)
+Faza 7 [Training Exec]    [....................] 0%    PENDING (0/12)
 ```
 
 > *F4.T6 i F6.T6 to taski opcjonalne (Multi-VM Integration i 24h E2E Test)
@@ -114,9 +115,28 @@ Faza 6 [Training]         [##################..] 83%   COMPLETED* (5/6)
 
 > *F6.T6 to opcjonalny 24h stability test
 
+### Faza 7: Training Execution (0/12 = 0%) - PENDING
+| Task | Nazwa | Status | Szacowany czas | Agent |
+|------|-------|--------|----------------|-------|
+| F7.T1 | Educational Maps Creation | PENDING | 8-16h | MANUAL |
+| F7.T2 | Worker VM Setup | PENDING | 4-8h | tzarbot-agent-hyperv-admin |
+| F7.T3 | Orchestrator Configuration | PENDING | 2-4h | tzarbot-agent-dotnet-senior |
+| F7.T4 | Map Loading Integration | PENDING | 8-12h | tzarbot-agent-dotnet-senior |
+| F7.T5 | Basics Training Run | PENDING | ~70h | MANUAL + AI |
+| F7.T6 | Basics Training Analysis | PENDING | 4-8h | tzarbot-agent-ai-senior |
+| F7.T7 | Easy AI Training | PENDING | ~550h | MANUAL + AI |
+| F7.T8 | Normal AI Training | PENDING | ~1660h | MANUAL + AI |
+| F7.T9 | AI Combat Analysis | PENDING | 4-8h | tzarbot-agent-ai-senior |
+| F7.T10 | Maturity Test | PENDING | ~12h | MANUAL + AI |
+| F7.T11 | Self-Play Tournament Setup | PENDING | 4-8h | tzarbot-agent-ai-senior |
+| F7.T12 | Self-Play Continuous Training | PENDING | Nieograniczony | MANUAL |
+
+> Szczegolowy backlog: `project_management/backlog/phase_7_backlog.md`
+> Strategia treningowa: `plans/training_strategy.md`
+
 ---
 
-## Kamienie milowe (FINAL)
+## Kamienie milowe
 
 | # | Milestone | Opis | Status | Data |
 |---|-----------|------|--------|------|
@@ -125,9 +145,14 @@ Faza 6 [Training]         [##################..] 83%   COMPLETED* (5/6)
 | M3 | Ewolucja populacji | Faza 3 Complete | DONE | 2025-12-08 |
 | M4 | Trening na 4+ VM | Fazy 4+5 Complete | DONE | 2025-12-08 |
 | M5 | Training Pipeline | Faza 6 Complete | DONE | 2025-12-08 |
-| M6 | Bot wygrywa vs Hard AI | Sukces projektu | PENDING* | - |
+| M6 | Mapy edukacyjne | F7.T1 Complete | PENDING | - |
+| M7a | Bot przechodzi podstawy | F7.T5 Complete | PENDING | - |
+| M7b | Bot wygrywa vs Easy AI | F7.T7 Complete | PENDING | - |
+| M7c | Bot wygrywa vs Normal AI | F7.T8 Complete | PENDING | - |
+| M7d | Bot wygrywa vs Hard AI | F7.T10 PASS | PENDING | - |
+| M7e | Self-play dziala | F7.T12 Started | PENDING | - |
 
-> *M6 wymaga przeprowadzenia pelnego treningu (tygodnie/miesiace)
+> Milestone M7d (Hard AI) to glowny cel projektu - "test dojrzalosci" bota
 
 ---
 
@@ -207,16 +232,30 @@ Faza 6 [Training]         [##################..] 83%   COMPLETED* (5/6)
 
 ---
 
-## Nastepne kroki (Post-project)
+## Nastepne kroki - Faza 7 (Training Execution)
 
-### Opcjonalne taski
-1. **F4.T6** - Multi-VM Integration Test (wymaga manualnego Template VM)
-2. **F6.T6** - Full 24h E2E Stability Test
+### Przygotowanie (F7.T1-T4)
+1. **F7.T1** - Stworzyc 12 map edukacyjnych w edytorze Tzar (MANUAL)
+2. **F7.T2** - Skonfigurowac 6 Worker VM (1.5GB RAM kazdy)
+3. **F7.T3** - Skonfigurowac Orchestrator
+4. **F7.T4** - Zintegrowac ladowanie map
 
-### Produkcja
-1. Manualne uruchomienie Template VM
-2. Pelny trening (szacowany czas: 2-4 tygodnie)
-3. Weryfikacja vs Easy AI -> Normal AI -> Hard AI
+### Trening (F7.T5-T12)
+5. **F7.T5** - Uruchomic trening podstaw (~70h)
+6. **F7.T7** - Trening vs Easy AI (~550h)
+7. **F7.T8** - Trening vs Normal AI (~1660h)
+8. **F7.T10** - Test dojrzalosci (Hard AI)
+9. **F7.T12** - Self-play (opcjonalny)
+
+### Szacowany czas do M7d (Hard AI victory)
+| Faza | Czas |
+|------|------|
+| Przygotowanie | ~30h pracy |
+| Trening basics | ~70h (auto) |
+| Trening Easy AI | ~550h (auto) |
+| Trening Normal AI | ~1660h (auto) |
+| Maturity test | ~12h (auto) |
+| **TOTAL** | **~2300h (~96 dni)** |
 
 ---
 
@@ -224,6 +263,8 @@ Faza 6 [Training]         [##################..] 83%   COMPLETED* (5/6)
 
 | Dokument | Sciezka |
 |----------|---------|
+| **Training Strategy** | `plans/training_strategy.md` |
+| **Phase 7 Backlog** | `project_management/backlog/phase_7_backlog.md` |
 | Gantt Chart | `project_management/gantt.md` |
 | Time Tracking | `project_management/timetracking.md` |
 | Project Overview | `project_management/project_overview.md` |

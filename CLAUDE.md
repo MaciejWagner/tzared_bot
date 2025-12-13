@@ -47,6 +47,49 @@ Przed uruchomieniem `dotnet test`:
 2. Jeśli hostname != "DEV" i nie jest VM, ODMÓW uruchomienia testów
 3. Zamiast tego użyj: `scripts/run_tests_on_vm.ps1`
 
+## Script & Installation Execution Policy
+
+**CRITICAL:** Wszystkie skrypty, instalacje i testy MUSZĄ być uruchamiane na VM DEV, NIE na hoście!
+
+| Operacja | Host | VM DEV |
+|----------|------|--------|
+| Edycja kodu / skryptów | ✓ | ✓ |
+| Build (dotnet build) | ✓ | ✓ |
+| Uruchamianie skryptów testowych | ✗ | ✓ |
+| Instalacja narzędzi (ffmpeg, etc.) | ✗ | ✓ |
+| Uruchamianie gry Tzar | ✗ | ✓ |
+| Screen capture / nagrywanie | ✗ | ✓ |
+| Input injection (mysz/klawiatura) | ✗ | ✓ |
+
+**Jak uruchamiać na VM DEV:**
+Claude Code odpowiada za uruchamianie skryptów na VM DEV z poziomu hosta przez:
+- **PowerShell Direct** (preferowane) - `Invoke-Command -VMName "DEV"`
+- **WinRM** - jeśli PowerShell Direct nie działa
+- **Copy-VMFile** - do kopiowania plików na VM
+
+**Wzorzec uruchamiania skryptów:**
+```powershell
+# 1. Skopiuj skrypt na VM
+Copy-VMFile -Name "DEV" -SourcePath "C:\path\script.ps1" -DestinationPath "C:\TzarBot\Scripts\" -FileSource Host -Force
+
+# 2. Uruchom skrypt na VM przez PowerShell Direct
+$pass = ConvertTo-SecureString "password123" -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential("test", $pass)
+Invoke-Command -VMName "DEV" -Credential $cred -ScriptBlock {
+    Set-Location C:\TzarBot\Scripts
+    .\script.ps1
+}
+```
+
+**WAŻNE:**
+- Claude Code MUSI uruchamiać wszystkie skrypty testowe/demo przez PowerShell Direct
+- NIE uruchamiaj skryptów input injection lub screen capture lokalnie na hoście
+- Wyniki i screenshoty kopiuj z VM na hosta do analizy
+
+**Powód:** Host to środowisko deweloperskie - uruchamianie skryptów input injection lub screen capture może zakłócić pracę.
+
+---
+
 ## Demo Execution Policy
 
 **CRITICAL:** Demo MUSI być tworzone i uruchamiane WYŁĄCZNIE na maszynie wirtualnej (VM DEV), NIE na komputerze hosta!
