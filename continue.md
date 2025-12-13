@@ -1,7 +1,7 @@
 # TzarBot Workflow Continuation Report
 
-**Ostatnia aktualizacja:** 2025-12-13 13:55
-**Status:** WSTRZYMANY - Gotowy do generowania sieci neuronowych
+**Ostatnia aktualizacja:** 2025-12-13 14:05
+**Status:** AKTYWNY - Generacja 0 wygenerowana, gotowy do pierwszego treningu
 
 ---
 
@@ -9,10 +9,10 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Ukończone fazy** | Phase 0, 1, 2, 3, 4, 5, 6, 7 (Browser Interface) |
-| **Aktualny task** | Generowanie 20 sieci neuronowych + protokół uczenia |
+| **Ukończone fazy** | Phase 0, 1, 2, 3, 4, 5, 6, 7, 8 (Population Gen) |
+| **Aktualny task** | Pierwszy trening sieci neuronowych |
 | **Build Status** | PASSED |
-| **Demo Playwright** | SUKCES (z Edge) |
+| **Population** | 20 sieci wygenerowanych |
 
 ### Postęp projektu
 
@@ -25,79 +25,88 @@
 | Phase 4: Hyper-V Infrastructure | COMPLETED | 5/6 | 54 pass |
 | Phase 5: Game State Detection | COMPLETED | 4/4 | ~20 pass |
 | Phase 6: Training Pipeline | COMPLETED | 5/6 | 90 pass |
-| **Phase 7: Browser Interface** | COMPLETED | - | Demo PASS |
+| Phase 7: Browser Interface | COMPLETED | 6/6 | Demo PASS |
+| **Phase 8: Population Generator** | COMPLETED | 1/1 | - |
 
 ---
 
-## Co zostało zrobione w tej sesji (2025-12-13 12:00 - 13:55)
+## Co zostało zrobione w tej sesji (2025-12-13 13:55 - 14:05)
 
-### 1. Naprawienie Demo Playwright
+### 1. Stworzenie PopulationGenerator
 
-**Problem:** Chromium nie ładował mapy w tza.red (ekran loading 100% zablokowany)
+Nowe narzędzie w `tools/PopulationGenerator/`:
+- Generuje N sieci neuronowych z losowymi wagami (Xavier init)
+- Eksportuje do ONNX i MessagePack
+- Tworzy raporty JSON i Markdown
+- Generuje protokół uczenia
 
-**Rozwiązanie:** Zmiana na Edge (msedge)
+### 2. Wygenerowanie 20 sieci neuronowych
 
-```csharp
-var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-{
-    Headless = false,
-    Channel = "msedge",  // KLUCZOWE: Edge działa, Chromium nie!
-    Args = new[] {
-        "--start-maximized",
-        "--autoplay-policy=no-user-gesture-required",
-        "--disable-web-security",
-        "--allow-running-insecure-content"
-    }
-});
+**Lokalizacja:** `training/generation_0/`
+
+```
+training/generation_0/
+├── genomes/           # 20 plików .bin (MessagePack)
+├── onnx/              # 20 plików .onnx (modele sieci)
+├── reports/
+│   ├── population_report.json    # Raport JSON
+│   ├── population_report.md      # Raport Markdown
+│   └── training_protocol.md      # Protokół uczenia
+└── population.bin     # Cała populacja w jednym pliku
 ```
 
-### 2. Optymalizacja timeoutów
+### 3. Statystyki populacji
 
-- Ładowanie gry: 20 sekund (wystarczające dla Edge)
-- Monitorowanie gry: 15 sekund
-- Max wait PowerShell: 90 sekund
-- Łączny czas testu: ~60-90 sekund
+| Metryka | Wartość |
+|---------|---------|
+| Liczba sieci | 20 |
+| Średnia liczba wag | 6,294,531 |
+| Min wag | 2,779,360 |
+| Max wag | 11,244,448 |
+| Seed bazowy | 20251213 |
 
-### 3. Demo SUKCES
+### 4. Różnorodność architektur
 
-Screenshoty w `demo_results/full_game_test/`:
-- `fg_01_main.png` - menu główne tza.red
-- `fg_02_skirmish.png` - menu POTYCZKA Z SI
-- `fg_03_map_loaded.png` - mapa training-0.tzared załadowana
-- `fg_04_after_play_click.png` - po kliknięciu GRAJ
-- `fg_loading_*.png` - sekwencja ładowania
-- `fg_game_*.png` - gra działa, mapa widoczna
+Populacja zawiera 10 różnych konfiguracji warstw ukrytych:
+- `256 -> 128` (standard 2-layer)
+- `512 -> 256` (larger 2-layer)
+- `128 -> 64` (smaller 2-layer)
+- `256 -> 128 -> 64` (3-layer pyramid)
+- `512 -> 256 -> 128` (larger 3-layer)
+- `128 -> 128` (uniform 2-layer)
+- `256 -> 256` (uniform larger)
+- `384 -> 192` (non-standard)
+- `256 -> 128 -> 64 -> 32` (4-layer deep)
+- `192 -> 96` (alternative)
 
 ---
 
 ## Następne kroki do wykonania
 
-### PRIORYTET 1: Generowanie 20 sieci neuronowych
+### PRIORYTET 1: Uruchomienie pierwszego treningu
 
-**Wymagania:**
-- Wygenerować 20 modeli sieci neuronowych
-- Każdy model z losowymi wagami
-- Zapisać jako pliki ONNX
-- Wygenerować pełny opis każdej sieci
-
-**Pliki do sprawdzenia:**
-```
-src/TzarBot.NeuralNetwork/GenomeSerializer.cs
-src/TzarBot.GeneticAlgorithm/
-src/TzarBot.Training/
-```
-
-### PRIORYTET 2: Pierwszy protokół uczenia
-
-**Parametry:**
+**Protokół uczenia (z `training_protocol.md`):**
 - 20 modeli
-- Każdy model ma 10 prób
-- Sukces = zaliczenie algorytmu genetycznego
-- Sieci które zaliczą -> reprodukcja + przejście do kolejnej fazy
+- 10 prób na model (200 gier łącznie)
+- Faza 1: Basic Survival (training-0.tzared, 5 min)
+- Faza 2: Unit Production (training-1.tzared, 10 min)
+- Faza 3: Combat (training-2.tzared, 15 min)
+- Selekcja: Top 50% przechodzi do następnej generacji
 
-**Podsumowania do generowania:**
-1. Pełny opis sieci przy każdej fazie
-2. Podsumowania iteracji: "udało się czy nie"
+**Wymagane:**
+1. Skopiować modele ONNX na VM DEV
+2. Uruchomić grę z pierwszym modelem
+3. Zebrać metryki (survival time, resources, units)
+4. Powtórzyć dla wszystkich 20 modeli
+5. Wypełnić tabelki w `training_protocol.md`
+
+### PRIORYTET 2: Analiza wyników
+
+Po zebraniu danych z 200 gier:
+- Ocenić fitness każdego modelu
+- Wybrać top 10 (50%)
+- Wygenerować potomstwo (crossover + mutation)
+- Rozpocząć Generację 1
 
 ---
 
@@ -105,11 +114,10 @@ src/TzarBot.Training/
 
 | Plik | Opis |
 |------|------|
+| `training/generation_0/` | Sieci neuronowe generacji 0 |
+| `training/generation_0/reports/training_protocol.md` | Protokół uczenia |
+| `tools/PopulationGenerator/` | Narzędzie do generowania populacji |
 | `scripts/test_full_game.ps1` | Demo Playwright z Edge |
-| `src/TzarBot.BrowserInterface/` | Interfejs przeglądarki |
-| `src/TzarBot.NeuralNetwork/` | Sieci neuronowe |
-| `src/TzarBot.GeneticAlgorithm/` | Algorytm genetyczny |
-| `src/TzarBot.Training/` | Pipeline treningowy |
 
 ---
 
@@ -119,30 +127,14 @@ src/TzarBot.Training/
 # Build całego projektu
 dotnet build "C:\Users\maciek\ai_experiments\tzar_bot\TzarBot.sln"
 
+# Generowanie nowej populacji (opcjonalnie z innymi parametrami)
+dotnet run --project "C:\Users\maciek\ai_experiments\tzar_bot\tools\PopulationGenerator\PopulationGenerator.csproj" -- "training\generation_1" 20 [SEED]
+
 # Test demo Playwright (Edge)
 powershell -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\test_full_game.ps1"
-
-# Kopiowanie screenshotów z VM
-powershell -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\copy_fg_screenshots.ps1"
 ```
 
 ---
 
-## Uwagi techniczne
-
-### Edge vs Chromium dla tza.red
-- **Chromium:** NIE DZIAŁA - mapa zablokowana na ekranie loading
-- **Edge:** DZIAŁA - mapa ładuje się poprawnie w ~10 sekund
-
-### Struktura testu gry
-1. Otwórz tza.red
-2. Kliknij "POTYCZKA Z SI" (#rnd0)
-3. Wczytaj mapę training-0.tzared (#load1 + file chooser)
-4. Kliknij "GRAJ" (#startCustom)
-5. Czekaj na załadowanie (20s)
-6. Monitoruj grę (15s)
-
----
-
-*Raport zaktualizowany: 2025-12-13 13:55*
-*Status: Gotowy do generowania sieci neuronowych i uruchomienia protokołu uczenia*
+*Raport zaktualizowany: 2025-12-13 14:05*
+*Status: Generacja 0 gotowa, czeka na pierwszy trening*
