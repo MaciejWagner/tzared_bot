@@ -130,6 +130,22 @@ pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scri
 
 ---
 
-*Raport zaktualizowany: 2025-12-13 17:15*
-*Status: Phase 9 COMPLETED - Generation 0 fully evaluated*
-*Top 10 sieci wybrane: 05, 06, 12, 13, 14, 15, 16, 17, 18, 19*
+*Raport zaktualizowany: 2025-12-13 17:50*
+*Status: WSTRZYMANY - Multi-trial training do uruchomienia*
+
+---
+
+## DO URUCHOMIENIA: Multi-Trial Training
+
+Skrypt gotowy do uruchomienia 20 sieci × 30 prób (~13h):
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File "C:\Users\maciek\ai_experiments\tzar_bot\scripts\run_multi_trial_training.ps1" -StartId 0 -EndId 19 -TrialsPerNetwork 30 -DurationSeconds 60
+```
+
+Wyniki zapiszą się w: `training/generation_0/multi_trial_YYYY-MM-DD_HH-mm/`
+
+Pliki wynikowe:
+- `all_trials.json` - wszystkie 600 prób
+- `network_summaries.json` - statystyki per sieć
+- `report.md` - raport markdown
