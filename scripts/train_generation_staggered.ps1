@@ -2,10 +2,17 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$GenerationPath,
 
-    [string[]]$MapPaths = @("training_maps/training-0.tzared", "training_maps/training-1.tzared", "training_maps/training-2.tzared"),
+    [string[]]$MapPaths = @(
+        "training_maps/training-0-1.tzared",
+        "training_maps/training-0-2.tzared",
+        "training_maps/training-0-3.tzared",
+        "training_maps/training-0-4.tzared",
+        "training_maps/training-0-5.tzared",
+        "training_maps/training-0-6.tzared"
+    ),
 
     [int]$Duration = 40,
-    [int]$TrialsPerNetwork = 5,
+    [int]$TrialsPerNetwork = 8,
     [int]$ParallelSessions = 3,
     [int]$StaggerDelaySeconds = 4  # Delay between starting each session (GPU init is heavy)
 )

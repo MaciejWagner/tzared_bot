@@ -103,15 +103,18 @@ Default training parameters (script: `scripts/train_generation_staggered.ps1`):
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `ParallelSessions` | 3 | Number of concurrent training windows |
-| `StaggerDelaySeconds` | 4 | Delay between starting runners (GPU init is heavy) |
-| `MapPath` | Previous map | Training map (use same as last run by default) |
+| `MapPaths` | training-0-1 to training-0-6 | 6 maps with single peasant |
+| `TrialsPerNetwork` | 8 | Number of trials per network |
 | `Duration` | 40 | Trial duration in seconds |
-| `TrialsPerNetwork` | 5 | Number of trials per network |
+| `ParallelSessions` | 3 | Number of concurrent training windows |
+| `StaggerDelaySeconds` | 4 | Delay between starting runners |
+
+**Current maps (1 peasant each):**
+- `training-0-1.tzared` through `training-0-6.tzared`
 
 Example:
 ```powershell
-./scripts/train_generation_staggered.ps1 -GenerationPath "training/generation_6" -StaggerDelaySeconds 4 -ParallelSessions 3
+./scripts/train_generation_staggered.ps1 -GenerationPath "training/generation_14"
 ```
 
 **Why staggered starts?** CUDA/cuDNN kernel compilation on first inference takes 2-6 seconds and uses significant GPU. Staggering prevents all instances from initializing simultaneously.
@@ -159,17 +162,15 @@ echo "Missing: $missing"
 # Summarize results (if not auto-generated)
 ./scripts/summarize_results.ps1 -GenerationPath "training/generation_N"
 
-# Evolve next generation (example for 40 networks with leader network_00)
+# Evolve next generation (population 50)
 ./publish/EvolveGeneration/EvolveGeneration.exe `
     training/generation_N `
     training/generation_N/results/summary.json `
     training/generation_N+1 `
-    --population 40 `
-    --elite 0 `
-    --mutated-copies 4 `
-    --forced-parent 0 `
-    --forced-crossover-count 10 `
-    --random-ratio 0.15 `
+    --population 50 `
+    --elite 10 `
+    --mutated-per-elite 2 `
+    --random-ratio 0.08 `
     --top 10
 
 # IMPORTANT: Delete old generation immediately after evolution (save disk space!)
@@ -177,13 +178,26 @@ rm -r training/generation_N-1
 ```
 
 **Evolution parameters explained:**
-- `--population 40` - 40 networks in new generation
-- `--elite 0` - no unchanged copies (mutations handle this)
-- `--mutated-copies 4` - 4 mutated variants of best network
-- `--forced-parent 0` - network_00 as forced parent
-- `--forced-crossover-count 10` - 10 crossovers with forced parent
-- `--random-ratio 0.15` - 6 random networks (15% of 40)
-- Normal crossovers: remaining (40 - 0 - 4 - 10 - 6 = 20)
+- `--population 50` - 50 networks in new generation
+- `--elite 10` - top 10 copied unchanged
+- `--mutated-per-elite 2` - 2 mutations × 10 elites = 20 mutated networks
+- `--random-ratio 0.08` - 4 random networks (8% of 50)
+- Crossovers: 50 - 10 - 20 - 4 = **16** (from elite pool)
+- `--top 10` - parent pool = elite networks
+
+**Population breakdown (50):**
+| Type | Count | Source |
+|------|-------|--------|
+| Elite | 10 | Top 10 unchanged |
+| Mutations | 20 | 2 per elite |
+| Crossovers | 16 | From elite pool |
+| Random | 4 | New architectures |
+
+### 4a. Automatic evolution (recommended)
+```powershell
+# Run until 80% victory rate
+./scripts/auto_evolve.ps1 -StartGeneration 12 -TargetVictoryRate 80
+```
 
 ### 5. Update continue.md
 Always update `continue.md` with:

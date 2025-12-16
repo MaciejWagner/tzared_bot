@@ -5,44 +5,39 @@
 
 ---
 
-## Parametry ewolucji
+## Parametry ewolucji (aktualne od Gen13)
 
 ```
---population 40
---elite 0
---mutated-copies 4
---forced-parent 0 (best network)
---forced-crossover-count 10
---random-ratio 0.15
+--population 50
+--elite 10
+--mutated-per-elite 2
+--random-ratio 0.08
 --top 10
 ```
 
-**Struktura populacji:**
-- 4 mutacje najlepszej sieci (sigma=0.25)
-- 10 forced crossovers (best x top10)
-- 20 normal crossovers (top10 x top10)
-- 6 random networks (nowe architektury)
+**Struktura populacji (50):**
+- 10 elit (bez zmian)
+- 20 mutacji (2 × każda elita)
+- 16 crossovers (z puli elity)
+- 4 random networks (nowe architektury)
 
 ---
 
 ## Parametry treningu
 
+**Gen 0-13 (stara konfiguracja):**
 | Parametr | Wartość |
 |----------|---------|
-| Duration | 40s |
+| Mapa | training-0b.tzared (2 wieśniaków) |
 | TrialsPerNetwork | 5 |
-| ParallelSessions | 3 |
-| StaggerDelaySeconds | 4 |
+| Duration | 40s |
 
----
-
-## Kryterium sukcesu
-
-- **Victory:** Fitness = 1.0
-- **Timeout:** Fitness = 0.3
-- **Defeat:** Fitness = 0.0
-- **Formuła:** `(victories * 1.0 + timeouts * 0.3) / trials`
-- **Próg zmiany mapy:** 80% sieci z VICTORY -> trudniejsza mapa
+**Gen 14+ (nowa konfiguracja):**
+| Parametr | Wartość |
+|----------|---------|
+| Mapy | training-0-1 do training-0-6 (6 map, 1 wieśniak każda) |
+| TrialsPerNetwork | 8 |
+| Duration | 40s |
 
 ---
 
@@ -53,7 +48,6 @@
 |----------|---------|
 | Data | 2025-12-15 |
 | Mapa | training-0b.tzared |
-| Czas treningu | 46m 46s |
 | Victory rate | 32.5% (13/40) |
 
 **Top 5:**
@@ -67,7 +61,6 @@
 
 **Ewolucja -> Gen11:**
 - Lider: network_37 (Fitness 1.0, 42 actions)
-- Crossovers: częściowo niekompatybilne struktury (3 vs 4 layers)
 
 ---
 
@@ -89,8 +82,6 @@
 
 **Ewolucja -> Gen12:**
 - Lider: network_03 (Fitness 1.0, 42 actions)
-- Top 10: network_03, 15, 16, 04, 10, 33, 17, 24, 14, 18
-- Crossovers: głównie 3-layer networks
 
 ---
 
@@ -99,23 +90,75 @@
 |----------|---------|
 | Data | 2025-12-16 |
 | Mapa | training-0b.tzared |
+| Victory rate | 52% (104/200) |
+| Population | 40 |
+
+**Top 5:**
+| Network | V | D | T | Fitness | AvgDur | AvgAct |
+|---------|---|---|---|---------|--------|--------|
+| network_00 | 5 | 0 | 0 | 1 | 17.5s | 31 |
+| network_18 | 5 | 0 | 0 | 1 | 23s | 42 |
+| network_15 | 5 | 0 | 0 | 1 | 22.7s | 42 |
+| network_05 | 5 | 0 | 0 | 1 | 22.7s | 42 |
+| network_23 | 5 | 0 | 0 | 1 | 14.1s | 25 |
+
+**Ewolucja -> Gen13:**
+- Lider: network_00 (Fitness 1)
+- Zmiana: Population 40 -> 50, nowe parametry ewolucji
+
+---
+
+### Generation 13
+| Parametr | Wartość |
+|----------|---------|
+| Data | 2025-12-16 |
+| Mapa | training-0b.tzared |
+| Victory rate | 58.8% (147/250) |
+| Population | 50 |
+
+**Top 5:**
+| Network | V | D | T | Fitness | AvgDur | AvgAct |
+|---------|---|---|---|---------|--------|--------|
+| network_31 | 5 | 0 | 0 | 504.2 | 22.9s | 42 |
+| network_08 | 5 | 0 | 0 | 504.2 | 22.6s | 42 |
+| network_42 | 5 | 0 | 0 | 504.2 | 22.9s | 42 |
+| network_32 | 5 | 0 | 0 | 504.2 | 22.8s | 42 |
+| network_34 | 5 | 0 | 0 | 504.2 | 22.7s | 42 |
+
+**Uwagi:**
+- 19 sieci z 100% victory rate (5/5)
+- 11 sieci z 80% victory rate (4/5)
+
+**Ewolucja -> Gen14:**
+- Lider: network_31 (Fitness 504.2)
+
+---
+
+### Generation 14
+| Parametr | Wartość |
+|----------|---------|
+| Data | 2025-12-16 |
+| Mapy | training-0-1 do training-0-6 (6 map, 1 wieśniak) |
+| Próby/sieć | 8 |
+| Population | 50 |
 | Status | OCZEKUJE NA TRENING |
 
-**Skład populacji:**
-- 4 mutacje network_03
-- 10 forced crossovers (network_03 x top10)
-- 20 normal crossovers
-- 6 random (w tym większe architektury: 1024-512-256-128)
+**Zmiana konfiguracji:**
+- Nowe mapy: 6 wariantów z pojedynczym wieśniakiem (łatwiejsze)
+- Zwiększona liczba prób: 8 (było 5)
+- Łącznie prób: 400 (50 sieci × 8 prób)
 
 ---
 
 ## Podsumowanie postępu
 
-| Gen | Victory Rate | Trend | Najszybszy czas |
-|-----|--------------|-------|-----------------|
-| 10 | 32.5% | - | 13.3s |
-| 11 | 40.0% | +7.5% | 13.4s |
-| 12 | ? | ? | ? |
+| Gen | Mapa | Victory Rate | Trend |
+|-----|------|--------------|-------|
+| 10 | training-0b | 32.5% | - |
+| 11 | training-0b | 40.0% | +7.5% |
+| 12 | training-0b | 52.0% | +12% |
+| 13 | training-0b | 58.8% | +6.8% |
+| 14 | training-0-1..6 | ? | ? |
 
 ---
 

@@ -38,9 +38,8 @@ class Program
         int eliteCount = -1; // -1 means use eliteRatio
         double eliteRatio = 0.3; // Default: 30% elites
         double randomRatio = 0.1; // Default: 10% random new networks
-        int forcedParent = -1; // -1 means no forced parent
-        int forcedCrossoverCount = 0; // Number of crossovers with forced parent (rest will be normal)
-        int mutatedCopies = 0; // Number of mutated copies of best network
+        int mutatedCopies = 0; // Number of mutated copies of best network (legacy)
+        int mutatedPerElite = 0; // Number of mutated copies per elite network
         double mutatedCopiesSigma = 0.25; // Sigma for mutated copies
         int seed = (int)DateTime.Now.Ticks;
 
@@ -60,12 +59,10 @@ class Program
                 eliteRatio = double.Parse(args[++i]);
             else if (args[i] == "--random-ratio" && i + 1 < args.Length)
                 randomRatio = double.Parse(args[++i]);
-            else if (args[i] == "--forced-parent" && i + 1 < args.Length)
-                forcedParent = int.Parse(args[++i]);
-            else if (args[i] == "--forced-crossover-count" && i + 1 < args.Length)
-                forcedCrossoverCount = int.Parse(args[++i]);
             else if (args[i] == "--mutated-copies" && i + 1 < args.Length)
                 mutatedCopies = int.Parse(args[++i]);
+            else if (args[i] == "--mutated-per-elite" && i + 1 < args.Length)
+                mutatedPerElite = int.Parse(args[++i]);
             else if (args[i] == "--mutated-sigma" && i + 1 < args.Length)
                 mutatedCopiesSigma = double.Parse(args[++i]);
             else if (args[i] == "--seed" && i + 1 < args.Length)
@@ -79,10 +76,10 @@ class Program
         }
         int randomCount = (int)(populationSize * randomRatio);
 
-        int totalCrossoverCount = populationSize - eliteCount - randomCount - mutatedCopies;
-        int normalCrossoverCount = totalCrossoverCount - forcedCrossoverCount;
-        if (normalCrossoverCount < 0) normalCrossoverCount = 0;
-        if (forcedCrossoverCount > totalCrossoverCount) forcedCrossoverCount = totalCrossoverCount;
+        // Total mutations = legacy mutatedCopies (of best) + mutatedPerElite * eliteCount
+        int totalMutations = mutatedCopies + (mutatedPerElite * eliteCount);
+        int crossoverCount = populationSize - eliteCount - randomCount - totalMutations;
+        if (crossoverCount < 0) crossoverCount = 0;
 
         Console.WriteLine($"Configuration:");
         Console.WriteLine($"  Source: {sourceDir}");
@@ -92,12 +89,13 @@ class Program
         Console.WriteLine($"  New population: {populationSize}");
         Console.WriteLine($"  Mutation rate: {mutationRate:P0}");
         Console.WriteLine($"  Mutation sigma: {mutationSigma}");
-        Console.WriteLine($"  Elite count: {eliteCount} ({eliteRatio:P0})");
-        Console.WriteLine($"  Mutated copies: {mutatedCopies} (sigma={mutatedCopiesSigma})");
-        if (forcedParent >= 0 && forcedCrossoverCount > 0)
-            Console.WriteLine($"  Forced crossovers: {forcedCrossoverCount} (with network_{forcedParent:D2})");
-        Console.WriteLine($"  Normal crossovers: {normalCrossoverCount}");
-        Console.WriteLine($"  Random count: {randomCount} ({randomRatio:P0})");
+        Console.WriteLine($"  Elite count: {eliteCount}");
+        if (mutatedCopies > 0)
+            Console.WriteLine($"  Mutated copies (best): {mutatedCopies} (sigma={mutatedCopiesSigma})");
+        if (mutatedPerElite > 0)
+            Console.WriteLine($"  Mutated per elite: {mutatedPerElite} x {eliteCount} = {mutatedPerElite * eliteCount} (sigma={mutatedCopiesSigma})");
+        Console.WriteLine($"  Crossovers: {crossoverCount}");
+        Console.WriteLine($"  Random count: {randomCount}");
         Console.WriteLine($"  Seed: {seed}");
         Console.WriteLine();
 
@@ -105,7 +103,7 @@ class Program
         {
             await EvolveAsync(sourceDir, resultsFile, outputDir,
                 topCount, populationSize, mutationRate, mutationSigma, eliteCount, randomCount,
-                forcedParent, forcedCrossoverCount, normalCrossoverCount, mutatedCopies, mutatedCopiesSigma, seed);
+                crossoverCount, mutatedCopies, mutatedPerElite, mutatedCopiesSigma, seed);
             return 0;
         }
         catch (Exception ex)
@@ -134,18 +132,18 @@ class Program
         Console.WriteLine("  --mutation-sigma S - Mutation strength (default: 0.1)");
         Console.WriteLine("  --elite N          - Number of elites (overrides --elite-ratio)");
         Console.WriteLine("  --elite-ratio R    - Ratio of elites 0.0-1.0 (default: 0.3 = 30%)");
-        Console.WriteLine("  --random-ratio R   - Ratio of random new networks 0.0-1.0 (default: 0.1 = 10%)");
-        Console.WriteLine("  --forced-parent N  - Force this network as parent for forced crossovers");
-        Console.WriteLine("  --forced-crossover-count N - Number of crossovers with forced parent");
-        Console.WriteLine("  --mutated-copies N - Create N mutated copies of best network");
-        Console.WriteLine("  --mutated-sigma S  - Sigma for mutated copies (default: 0.25)");
-        Console.WriteLine("  --seed N           - Random seed (default: current time)");
+        Console.WriteLine("  --random-ratio R     - Ratio of random new networks 0.0-1.0 (default: 0.1 = 10%)");
+        Console.WriteLine("  --mutated-copies N   - Create N mutated copies of best network only");
+        Console.WriteLine("  --mutated-per-elite N - Create N mutated copies per EACH elite network");
+        Console.WriteLine("  --mutated-sigma S    - Sigma for mutated copies (default: 0.25)");
+        Console.WriteLine("  --seed N             - Random seed (default: current time)");
         Console.WriteLine();
-        Console.WriteLine("Population split: elites + mutated-copies + crossover + random = 100%");
-        Console.WriteLine("  Default: 30% elites + 60% crossover + 10% random");
+        Console.WriteLine("Population split: elites + mutations + crossovers + random = population");
+        Console.WriteLine("  mutations = mutated-copies + (mutated-per-elite * elite)");
+        Console.WriteLine("  crossovers = population - elites - mutations - random");
         Console.WriteLine();
-        Console.WriteLine("Example:");
-        Console.WriteLine(@"  EvolveGeneration.exe training\generation_0 training\generation_0\results\batch_summary.json training\generation_1");
+        Console.WriteLine("Example (population 50):");
+        Console.WriteLine(@"  EvolveGeneration.exe training\gen_12 training\gen_12\results\summary.json training\gen_13 --population 50 --elite 10 --mutated-per-elite 2 --random-ratio 0.08");
     }
 
     static async Task EvolveAsync(
@@ -158,15 +156,13 @@ class Program
         double mutationSigma,
         int eliteCount,
         int randomCount,
-        int forcedParent,
-        int forcedCrossoverCount,
-        int normalCrossoverCount,
+        int crossoverCount,
         int mutatedCopies,
+        int mutatedPerElite,
         double mutatedCopiesSigma,
         int seed)
     {
         var random = new Random(seed);
-        int crossoverCount = forcedCrossoverCount + normalCrossoverCount;
 
         // 1. Load results and rank networks
         Console.WriteLine("Loading training results...");
@@ -244,7 +240,7 @@ class Program
             Console.WriteLine($"  Elite {i}: From network_{genomes[i].result.NetworkId:D2} (unchanged)");
         }
 
-        // Create mutated copies of best network (if requested)
+        // Create mutated copies of best network only (legacy --mutated-copies)
         if (mutatedCopies > 0 && genomes.Count > 0)
         {
             var bestGenome = genomes[0].genome;
@@ -271,68 +267,43 @@ class Program
             }
         }
 
-        // Find forced parent genome (if specified)
-        (NetworkGenome genome, TrialResult result)? forcedParentGenome = null;
-        if (forcedParent >= 0)
+        // Create mutated copies for EACH elite (--mutated-per-elite)
+        if (mutatedPerElite > 0 && genomes.Count > 0)
         {
-            var found = genomes.FirstOrDefault(g => g.result.NetworkId == forcedParent);
-            if (found.genome != null)
+            var strongMutatorConfig = new GeneticAlgorithmConfig
             {
-                forcedParentGenome = found;
-                Console.WriteLine($"  Using network_{forcedParent:D2} as forced parent for {forcedCrossoverCount} crossovers");
-            }
-            else
+                WeightMutationStrength = (float)mutatedCopiesSigma,
+                MinWeight = -3f,
+                MaxWeight = 3f,
+                MutationRate = 1.0f // Always mutate
+            };
+            var strongMutator = new WeightMutator(strongMutatorConfig);
+
+            int elitesToMutate = Math.Min(eliteCount, genomes.Count);
+            Console.WriteLine($"  Creating {mutatedPerElite} mutated copies per elite x {elitesToMutate} elites = {mutatedPerElite * elitesToMutate} total (sigma={mutatedCopiesSigma})...");
+
+            for (int e = 0; e < elitesToMutate; e++)
             {
-                Console.WriteLine($"  WARNING: Forced parent network_{forcedParent:D2} not found, using best network");
-                forcedParentGenome = genomes[0];
+                var eliteGenome = genomes[e].genome;
+                var eliteNetworkId = genomes[e].result.NetworkId;
+
+                for (int m = 0; m < mutatedPerElite; m++)
+                {
+                    var mutated = eliteGenome.Clone();
+                    mutated.Generation = 1;
+                    mutated.Id = Guid.NewGuid();
+                    mutated.ParentIds = new[] { eliteGenome.Id };
+                    strongMutator.Mutate(mutated, random);
+                    mutated.Fitness = 0;
+                    newPopulation.Add(mutated);
+                    Console.WriteLine($"  MutatedElite {e}.{m}: From network_{eliteNetworkId:D2} (sigma={mutatedCopiesSigma})");
+                }
             }
         }
 
-        // Create forced crossovers (with forced parent)
-        if (forcedCrossoverCount > 0 && forcedParentGenome.HasValue)
-        {
-            Console.WriteLine($"  Creating {forcedCrossoverCount} forced crossovers (network_{forcedParent:D2} x top{topCount})...");
-            for (int i = 0; i < forcedCrossoverCount; i++)
-            {
-                var parent1 = forcedParentGenome.Value;
-                var parent2 = SelectParent(genomes, random);
-
-                // Ensure different parents
-                int attempts = 0;
-                while (parent2.genome.Id == parent1.genome.Id && attempts < 10)
-                {
-                    parent2 = SelectParent(genomes, random);
-                    attempts++;
-                }
-
-                NetworkGenome child;
-                if (CanCrossover(parent1.genome, parent2.genome))
-                {
-                    child = crossover.CrossoverSingle(parent1.genome, parent2.genome, random);
-                    Console.WriteLine($"  ForcedCrossover {i}: network_{parent1.result.NetworkId:D2} x network_{parent2.result.NetworkId:D2}");
-                }
-                else
-                {
-                    child = parent1.genome.Clone();
-                    child.ParentIds = new[] { child.Id };
-                    child.Id = Guid.NewGuid();
-                    Console.WriteLine($"  ForcedCrossover {i}: Cloned network_{parent1.result.NetworkId:D2} (incompatible structures)");
-                }
-
-                if (random.NextDouble() < mutationRate)
-                {
-                    mutator.Mutate(child, random);
-                }
-
-                child.Generation = 1;
-                child.Fitness = 0;
-                newPopulation.Add(child);
-            }
-        }
-
-        // Create normal crossovers (top performers)
-        Console.WriteLine($"  Creating {normalCrossoverCount} normal crossovers (top{topCount} x top{topCount})...");
-        for (int i = 0; i < normalCrossoverCount; i++)
+        // Create crossovers (from top performers / elite pool)
+        Console.WriteLine($"  Creating {crossoverCount} crossovers (top{topCount} x top{topCount})...");
+        for (int i = 0; i < crossoverCount; i++)
         {
             var parent1 = SelectParent(genomes, random);
             var parent2 = SelectParent(genomes, random);

@@ -107,7 +107,8 @@
       "Bash(for d in \"C:/Users/maciek/ai_experiments/tzar_bot/src/\"*/bin)",
       "Bash(do du -sh \"$d\")",
       "Bash(for d in \"C:/Users/maciek/ai_experiments/tzar_bot/tools/\"*/bin)",
-      "Bash(Remove-Item -Recurse -Force \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\temp\")"
+      "Bash(Remove-Item -Recurse -Force \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\temp\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\scripts\\summarize_results.ps1\" -GenerationPath \"training/generation_13\")"
     ],
     "deny": [],
     "ask": []
