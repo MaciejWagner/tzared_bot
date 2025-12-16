@@ -101,7 +101,13 @@
       "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"./scripts/train_generation_staggered.ps1 -GenerationPath ''training/generation_10'' -MapPaths ''training_maps/training-0b.tzared'' -Duration 40 -TrialsPerNetwork 5 -ParallelSessions 3 -StaggerDelaySeconds 4\")",
       "Bash(grep:*)",
       "Bash(powershell.exe -Command:*)",
-      "Bash(dir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\training\\results\")"
+      "Bash(dir \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\training\\results\")",
+      "Bash(du -sh:*)",
+      "Bash(cat:*)",
+      "Bash(for d in \"C:/Users/maciek/ai_experiments/tzar_bot/src/\"*/bin)",
+      "Bash(do du -sh \"$d\")",
+      "Bash(for d in \"C:/Users/maciek/ai_experiments/tzar_bot/tools/\"*/bin)",
+      "Bash(Remove-Item -Recurse -Force \"C:\\Users\\maciek\\ai_experiments\\tzar_bot\\temp\")"
     ],
     "deny": [],
     "ask": []
