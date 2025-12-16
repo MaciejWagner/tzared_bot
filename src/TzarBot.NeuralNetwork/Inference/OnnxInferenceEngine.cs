@@ -80,13 +80,14 @@ public sealed class OnnxInferenceEngine : IInferenceEngine
         {
             try
             {
-                // DirectML is the preferred GPU provider on Windows
-                options.AppendExecutionProvider_DML();
+                // CUDA is the preferred GPU provider for NVIDIA GPUs
+                options.AppendExecutionProvider_CUDA();
                 IsGpuEnabled = true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Fall back to CPU if GPU provider fails
+                Console.WriteLine($"[GPU] CUDA init failed: {ex.Message}");
                 IsGpuEnabled = false;
             }
         }

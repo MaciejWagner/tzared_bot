@@ -103,6 +103,8 @@ public enum ActionType
     DragStart = 20,
     /// <summary>End drag operation.</summary>
     DragEnd = 21,
+    /// <summary>Drag-select: creates selection box around current mouse position.</summary>
+    DragSelect = 22,
 
     // Hotkeys (unit groups)
     /// <summary>Press number key 1-0.</summary>

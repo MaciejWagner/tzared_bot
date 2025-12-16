@@ -81,3 +81,5 @@ tests.zip
 # Publish outputs
 publish/
 publish-sc/
+training/generation_*
+temp/*

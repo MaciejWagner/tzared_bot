@@ -13,8 +13,9 @@ namespace TrainingRunner;
 /// </summary>
 public sealed class MouseState
 {
-    public int X { get; set; } = 960;  // Center of 1920x1080
-    public int Y { get; set; } = 540;
+    // Start at center of viewport (1271x715) where units are likely to be
+    public int X { get; set; } = 635;
+    public int Y { get; set; } = 357;
 }
 
 /// <summary>
@@ -23,7 +24,7 @@ public sealed class MouseState
 /// </summary>
 public static class Program
 {
-    private const int TargetFps = 10; // 10 actions per second
+    private const int TargetFps = 2; // 2 actions per second - reduced for multi-instance training (less GPU stalls)
     private const int FrameDelayMs = 1000 / TargetFps;
 
     public static async Task<int> Main(string[] args)
@@ -98,9 +99,9 @@ public static class Program
         var stopwatch = Stopwatch.StartNew();
         var inferenceTimings = new List<double>();
 
-        // Load neural network
+        // Load neural network with GPU acceleration
         Console.WriteLine("Loading neural network...");
-        using var engine = OnnxInferenceEngine.FromFile(modelPath, useGpu: false);
+        using var engine = OnnxInferenceEngine.FromFile(modelPath, useGpu: true);
         var modelInfo = engine.GetModelInfo();
         Console.WriteLine($"Model loaded: {modelInfo}");
 
@@ -108,7 +109,17 @@ public static class Program
         var preprocessorConfig = PreprocessorConfig.Default();
         using var preprocessor = new ImagePreprocessor(preprocessorConfig);
 
-        // Initialize browser
+        // Warmup CUDA - first inference compiles cuDNN kernels (takes 2-6 seconds)
+        // This ensures fast inference during actual gameplay
+        Console.WriteLine("Warming up CUDA (first inference)...");
+        var warmupStart = Stopwatch.GetTimestamp();
+        var dummyInput = new float[modelInfo.InputSize];
+        engine.Infer(dummyInput); // First inference - slow (cuDNN kernel compilation)
+        engine.Infer(dummyInput); // Second inference - should be fast
+        var warmupMs = (Stopwatch.GetTimestamp() - warmupStart) * 1000.0 / Stopwatch.Frequency;
+        Console.WriteLine($"CUDA warmup complete: {warmupMs:F0}ms (subsequent inference: {engine.LastInferenceTime.TotalMilliseconds:F1}ms)");
+
+        // Initialize browser (visible window for best compatibility with tza.red)
         Console.WriteLine("Initializing browser...");
         await using var browser = new PlaywrightGameInterface();
         await browser.InitializeAsync(headless: false);
@@ -120,20 +131,42 @@ public static class Program
 
         Console.WriteLine("Starting game...");
         await browser.StartGameAsync();
-        await Task.Delay(5000); // Wait for game to fully load
 
-        // Game loop
+        Console.WriteLine("Waiting 3s for game to fully load...");
+        await Task.Delay(3000);
+
+        // Save debug screenshot at game start
+        var startScreenshot = await browser.TakeScreenshotAsync();
+        var startDebugDir = Path.Combine(Path.GetDirectoryName(modelPath)!, "debug");
+        Directory.CreateDirectory(startDebugDir);
+        var startScreenshotPath = Path.Combine(startDebugDir, $"game_start_{DateTime.Now:HHmmss}.png");
+        await File.WriteAllBytesAsync(startScreenshotPath, startScreenshot!);
+        Console.WriteLine($"[Debug] Saved start screenshot: {startScreenshotPath}");
+
+        // CURRICULUM PHASE 2: No auto-select
+        // Network must learn to LeftClick on units to select them
+        // Map has many peasants spread around to increase chance of random selection
+        Console.WriteLine("[Curriculum Phase 2] No auto-select - network must click to select units");
+
+        // Game loop - reset stopwatch here so game duration is from game start, not program start
+        stopwatch.Restart();
         Console.WriteLine($"Starting game loop (max {durationSeconds}s)...");
         var gameStart = DateTime.UtcNow;
         int frameCount = 0;
         int actionCount = 0;
         string outcome = "TIMEOUT";
+        int loopIterations = 0;
+        double lastEndGameCheck = 0; // Track last endgame check time
+
+        // Action log for debugging
+        var actionLog = new List<ActionLogEntry>();
 
         // Track current mouse position (center of screen initially)
         var mouseState = new MouseState();
 
         while (stopwatch.Elapsed.TotalSeconds < durationSeconds)
         {
+            loopIterations++;
             var frameStart = Stopwatch.GetTimestamp();
 
             try
@@ -142,10 +175,9 @@ public static class Program
                 var screenshotBytes = await browser.TakeScreenshotAsync();
 
                 // 2. Convert PNG to BGRA32 for preprocessing
-                var frame = ConvertPngToScreenFrame(screenshotBytes);
+                var frame = ConvertPngToScreenFrame(screenshotBytes!);
                 if (frame == null)
                 {
-                    Console.WriteLine($"[{frameCount}] Failed to convert screenshot");
                     await Task.Delay(FrameDelayMs);
                     continue;
                 }
@@ -170,26 +202,50 @@ public static class Program
                 var inferenceMs = (inferenceEnd - inferenceStart) * 1000.0 / Stopwatch.Frequency;
                 inferenceTimings.Add(inferenceMs);
 
-                // 5. Execute action
+                // 5. Execute action and log it
                 await ExecuteActionAsync(browser, action, mouseState);
                 actionCount++;
 
-                // 6. Check game state every 10 frames
+                // Log the action
+                actionLog.Add(new ActionLogEntry
+                {
+                    Timestamp = stopwatch.Elapsed.TotalSeconds,
+                    ActionType = action.Type.ToString(),
+                    MouseX = mouseState.X,
+                    MouseY = mouseState.Y,
+                    MouseDeltaX = action.MouseDeltaX,
+                    MouseDeltaY = action.MouseDeltaY,
+                    HotkeyNumber = action.HotkeyNumber ?? 0
+                });
+
+                // 6. Check for Victory/Defeat every 3 seconds using visual detection
+                // Skip first 10 seconds to avoid false positives from menu/loading screens
+                var currentTime = stopwatch.Elapsed.TotalSeconds;
+                if (currentTime > 10 && currentTime - lastEndGameCheck >= 3.0)
+                {
+                    lastEndGameCheck = currentTime;
+                    var (endGameResult, diagnostics) = DetectEndGameFromScreenshotWithDiagnostics(screenshotBytes);
+                    if (endGameResult != null)
+                    {
+                        outcome = endGameResult;
+                        Console.WriteLine($"[{currentTime:F1}s] Game ended: {outcome}");
+
+                        // Save screenshot for analysis
+                        var debugDir = Path.Combine(Path.GetDirectoryName(modelPath) ?? ".", "debug");
+                        Directory.CreateDirectory(debugDir);
+                        var timestamp = DateTime.Now.ToString("HHmmss");
+                        var debugFile = Path.Combine(debugDir, $"endgame_{outcome}_{timestamp}.png");
+                        await File.WriteAllBytesAsync(debugFile, screenshotBytes);
+                        Console.WriteLine($"[Debug] Saved screenshot: {debugFile}");
+                        Console.WriteLine($"[Debug] Diagnostics: {diagnostics}");
+
+                        break;
+                    }
+                }
+
+                // Log progress every 10 frames
                 if (frameCount % 10 == 0)
                 {
-                    var state = await browser.DetectGameStateAsync();
-                    if (state.State == GameState.Victory)
-                    {
-                        outcome = "VICTORY";
-                        break;
-                    }
-                    else if (state.State == GameState.Defeat)
-                    {
-                        outcome = "DEFEAT";
-                        break;
-                    }
-
-                    // Log progress
                     Console.WriteLine($"[{stopwatch.Elapsed.TotalSeconds:F1}s] Actions: {actionCount}, FPS: {frameCount / stopwatch.Elapsed.TotalSeconds:F1}, Inference: {inferenceMs:F2}ms");
                 }
 
@@ -221,6 +277,7 @@ public static class Program
         metrics.MinInferenceMs = inferenceTimings.Count > 0 ? inferenceTimings.Min() : 0;
         metrics.MaxInferenceMs = inferenceTimings.Count > 0 ? inferenceTimings.Max() : 0;
         metrics.ActionsPerSecond = actionCount / stopwatch.Elapsed.TotalSeconds;
+        metrics.ActionLog = actionLog;
 
         return metrics;
     }
@@ -252,6 +309,167 @@ public static class Program
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// Detects Victory/Defeat screen from screenshot with diagnostics.
+    /// </summary>
+    private static (string? result, string diagnostics) DetectEndGameFromScreenshotWithDiagnostics(byte[] screenshotBytes)
+    {
+        try
+        {
+            using var bitmap = SKBitmap.Decode(screenshotBytes);
+            if (bitmap == null) return (null, "bitmap decode failed");
+
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+
+            // First check if end-game dialog is visible (center 50% of screen)
+            int startX = width * 25 / 100;
+            int endX = width * 75 / 100;
+            int startY = height * 25 / 100;
+            int endY = height * 75 / 100;
+
+            int darkCount = 0;
+            int redCount = 0;
+            int totalPixels = 0;
+
+            for (int y = startY; y < endY; y += 4)
+            {
+                for (int x = startX; x < endX; x += 4)
+                {
+                    var pixel = bitmap.GetPixel(x, y);
+                    totalPixels++;
+
+                    if (pixel.Red < 80 && pixel.Green < 80 && pixel.Blue < 80)
+                        darkCount++;
+                    else if (pixel.Red > 120 && pixel.Red > pixel.Green + 30 && pixel.Red > pixel.Blue + 30)
+                        redCount++;
+                }
+            }
+
+            float darkRatio = (float)darkCount / totalPixels;
+            float redRatio = (float)redCount / totalPixels;
+
+            // Check if end-game dialog is visible
+            bool isEndGame = darkRatio > 0.55f && darkRatio < 0.85f && redRatio > 0.02f;
+
+            if (!isEndGame)
+                return (null, $"not endgame: dark={darkRatio:P1}, red={redRatio:P1}");
+
+            // Key difference:
+            // VICTORY: has golden text "YOU ARE VICTORIOUS" at bottom → goldRatio ~2.4%
+            // DEFEAT: has white text "YOU WERE DEFEATED" at bottom → goldRatio ~0.1%
+
+            // Check bottom text area (y=75-85%) for gold text
+            var (_, goldRatio, bottomDiag) = ScanBottomTextColors(bitmap);
+
+            string diag = $"size={width}x{height}, dark={darkRatio:P1}, red={redRatio:P1}, bottom_gold={goldRatio:P1}";
+
+            // Simple threshold: VICTORY has ~2.4% gold, DEFEAT has ~0.1%
+            // Use 0.5% as threshold
+            bool isVictory = goldRatio > 0.005f;
+
+            if (isVictory)
+            {
+                Console.WriteLine($"[EndGame] VICTORY detected (gold={goldRatio:P1})");
+                return ("VICTORY", diag);
+            }
+            else
+            {
+                Console.WriteLine($"[EndGame] DEFEAT detected (gold={goldRatio:P1})");
+                return ("DEFEAT", diag);
+            }
+        }
+        catch (Exception ex)
+        {
+            return (null, $"error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Scans the bottom text area for white (DEFEAT) vs gold (VICTORY) text.
+    /// DEFEAT: "YOU WERE DEFEATED" in white/gray
+    /// VICTORY: "YOU ARE VICTORIOUS" in gold
+    /// </summary>
+    private static (float whiteRatio, float goldRatio, string diagnostics) ScanBottomTextColors(SKBitmap bitmap)
+    {
+        int width = bitmap.Width;
+        int height = bitmap.Height;
+
+        // Bottom text area: y=75-85%, x=30-70%
+        int startX = width * 30 / 100;
+        int endX = width * 70 / 100;
+        int startY = height * 75 / 100;
+        int endY = height * 85 / 100;
+
+        int whiteCount = 0;
+        int goldCount = 0;
+        int total = 0;
+
+        for (int y = startY; y < endY; y += 2)
+        {
+            for (int x = startX; x < endX; x += 2)
+            {
+                var pixel = bitmap.GetPixel(x, y);
+                total++;
+
+                // White/light gray text (DEFEAT text)
+                if (pixel.Red > 180 && pixel.Green > 180 && pixel.Blue > 180 &&
+                    Math.Abs(pixel.Red - pixel.Green) < 30 &&
+                    Math.Abs(pixel.Red - pixel.Blue) < 30)
+                {
+                    whiteCount++;
+                }
+
+                // Gold/yellow text (VICTORY text)
+                if (pixel.Red > 180 && pixel.Green > 150 && pixel.Blue < 100 &&
+                    pixel.Red > pixel.Blue + 80)
+                {
+                    goldCount++;
+                }
+            }
+        }
+
+        float whiteRatio = total > 0 ? (float)whiteCount / total : 0;
+        float goldRatio = total > 0 ? (float)goldCount / total : 0;
+        return (whiteRatio, goldRatio, $"white={whiteCount}, gold={goldCount}, total={total}");
+    }
+
+    /// <summary>
+    /// Scans a region for gold/yellow colored pixels.
+    /// </summary>
+    private static (float goldRatio, string diagnostics) ScanRegionForGold(
+        SKBitmap bitmap, int yStartPercent, int yEndPercent, int xStartPercent, int xEndPercent)
+    {
+        int width = bitmap.Width;
+        int height = bitmap.Height;
+
+        int startX = width * xStartPercent / 100;
+        int endX = width * xEndPercent / 100;
+        int startY = height * yStartPercent / 100;
+        int endY = height * yEndPercent / 100;
+
+        int goldCount = 0;
+        int total = 0;
+
+        for (int y = startY; y < endY; y += 2)
+        {
+            for (int x = startX; x < endX; x += 2)
+            {
+                var pixel = bitmap.GetPixel(x, y);
+                total++;
+
+                // Gold/yellow color detection for big "F" letter
+                bool isGold = (pixel.Red > 170 && pixel.Green > 130 && pixel.Blue < 120) ||
+                              (pixel.Red > 200 && pixel.Green > 180 && pixel.Blue < 100);
+
+                if (isGold) goldCount++;
+            }
+        }
+
+        float goldRatio = total > 0 ? (float)goldCount / total : 0;
+        return (goldRatio, $"y={yStartPercent}-{yEndPercent}%, gold={goldCount}/{total}");
     }
 
     private static async Task ExecuteActionAsync(
@@ -299,6 +517,16 @@ public static class Program
             case ActionType.DragEnd:
                 // Simplified drag - just another click
                 await browser.ClickAtAsync(mouse.X, mouse.Y);
+                break;
+
+            case ActionType.DragSelect:
+                // Drag-select: create selection box centered on mouse position
+                int halfSize = ActionDecoder.DragSize / 2;
+                int x1 = Math.Max(0, mouse.X - halfSize);
+                int y1 = Math.Max(0, mouse.Y - halfSize);
+                int x2 = Math.Min(1920, mouse.X + halfSize);
+                int y2 = Math.Min(1080, mouse.Y + halfSize);
+                await browser.DragSelectAsync(x1, y1, x2, y2);
                 break;
 
             case ActionType.Hotkey:
@@ -351,4 +579,19 @@ public sealed class TrialMetrics
     public double MinInferenceMs { get; set; }
     public double MaxInferenceMs { get; set; }
     public double ActionsPerSecond { get; set; }
+    public List<ActionLogEntry>? ActionLog { get; set; }
+}
+
+/// <summary>
+/// Log entry for a single action.
+/// </summary>
+public sealed class ActionLogEntry
+{
+    public double Timestamp { get; set; }
+    public string ActionType { get; set; } = "";
+    public int MouseX { get; set; }
+    public int MouseY { get; set; }
+    public float MouseDeltaX { get; set; }
+    public float MouseDeltaY { get; set; }
+    public int HotkeyNumber { get; set; }
 }

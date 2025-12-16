@@ -16,14 +16,18 @@ public sealed class ActionDecoder
 {
     /// <summary>
     /// Maximum mouse delta in pixels. Mouse output is scaled from [-1, 1] to [-MaxDelta, +MaxDelta].
+    /// Set to 600 (half screen width) so networks can move across entire screen.
+    /// With delta=0.01 -> 6px, delta=0.1 -> 60px, delta=1.0 -> 600px
     /// </summary>
-    public const int MaxMouseDelta = 100;
+    public const int MaxMouseDelta = 600;
 
     /// <summary>
     /// Minimum confidence threshold for non-None actions.
     /// If the highest action probability is below this threshold, return None.
+    /// For training: use low threshold (0.03) to allow exploration.
+    /// For production: use higher threshold (0.1+) for stable behavior.
     /// </summary>
-    public const float MinConfidenceThreshold = 0.1f;
+    public const float MinConfidenceThreshold = 0.03f; // ~1/30 for 30 actions
 
     // Map from output index to ActionType
     private static readonly ActionType[] ActionTypeMap = BuildActionTypeMap();
@@ -143,22 +147,48 @@ public sealed class ActionDecoder
     }
 
     /// <summary>
+    /// Size of drag selection box in pixels (centered on mouse position).
+    /// Drag action creates a selection box of DragSize x DragSize pixels.
+    /// </summary>
+    public const int DragSize = 150;
+
+    /// <summary>
     /// Builds the mapping from output neuron index to ActionType.
-    /// Output head has 30 neurons total:
-    /// 0: None
-    /// 1: MouseMove
-    /// 2: LeftClick
-    /// 3: RightClick
-    /// 4: DoubleClick
-    /// 5: DragStart
-    /// 6: DragEnd
-    /// 7: ScrollUp (skipped for now, use index for clarity)
-    /// 8-17: Hotkey 0-9
-    /// 18-27: HotkeyCtrl 0-9
-    /// 28: Escape
-    /// 29: Enter
+    ///
+    /// CURRICULUM PHASE 2: LeftClick + RightClick + MouseMove + DragSelect
+    /// Network can: LeftClick (select single) or DragSelect (select area) -> RightClick (move)
+    /// All 30 output neurons mapped cyclically to 4 actions (25% each).
+    ///
+    /// Output mapping:
+    /// 0, 4, 8, 12, 16, 20, 24, 28: LeftClick (select single unit)
+    /// 1, 5, 9, 13, 17, 21, 25, 29: RightClick (move/attack)
+    /// 2, 6, 10, 14, 18, 22, 26: MouseMove (explore)
+    /// 3, 7, 11, 15, 19, 23, 27: DragSelect (select area 150x150 around mouse)
     /// </summary>
     private static ActionType[] BuildActionTypeMap()
+    {
+        // CURRICULUM PHASE 2: Select + Move + Explore + DragSelect
+        // No auto-select - network must click/drag on units to select them
+        // DragSelect creates 150x150 selection box - good for selecting multiple units
+        var mouseActions = new ActionType[]
+        {
+            ActionType.LeftClick,   // 0 - select single unit
+            ActionType.RightClick,  // 1 - move/attack command
+            ActionType.MouseMove,   // 2 - move cursor to find units
+            ActionType.DragSelect,  // 3 - drag-select 150x150 area around mouse
+        };
+
+        // Map all 30 neurons to these 4 actions cyclically
+        var map = new ActionType[30];
+        for (int i = 0; i < 30; i++)
+        {
+            map[i] = mouseActions[i % 4];
+        }
+        return map;
+    }
+
+    /* FULL ACTION SPACE (uncomment after first VICTORY):
+    private static ActionType[] BuildActionTypeMapFull()
     {
         return new ActionType[]
         {
@@ -194,4 +224,5 @@ public sealed class ActionDecoder
             ActionType.Enter        // 29
         };
     }
+    */
 }
